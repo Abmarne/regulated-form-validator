@@ -1,15 +1,15 @@
-📦 Regulated Form Validator (React)
+### 📦 Regulated Form Validator (React)
 YAML-driven, dynamic form validation and rendering for React.
 Define fields and rules in YAML/JSON, render forms automatically, and enforce compliance-ready validations for BFSI, healthcare, and other regulated domains.
 
-✨ Features
-• 	Declarative config: Define fields and rules in YAML/JSON.
-• 	Dynamic rendering: Auto-generate React forms from config.
-• 	Rich validations: required,regex,length,enum,number,date,crossField,conditional(when),custom.
-• 	BFSI rules built-in: PAN, IFSC, Aadhaar.
-• 	Auditor-friendly: Human-readable config files for compliance reviews.
+### ✨ Features
+• 	*** Declarative config: *** Define fields and rules in YAML/JSON.
+• 	*** Dynamic rendering: ***  Auto-generate React forms from config.
+• 	*** Rich validations: ***  required,regex,length,enum,number,date,crossField,conditional(when),custom.
+• 	*** BFSI rules built-in: ***  PAN, IFSC, Aadhaar.
+• 	*** Auditor-friendly: ***  Human-readable config files for compliance reviews.
 
-🧪 Local Testing / Development
+### 🧪 Local Testing / Development
 Since the package is not yet published, you can test it locally using the included demo app:
 ```bash
 # Navigate to the project root
@@ -23,7 +23,7 @@ npm run dev
 
 Open http://localhost:5173 in your browser to interact with the form.
 
-🧪 Testing
+### 🧪 Testing
 Run unit tests locally to validate your form logic:
 ```bash
 # Run all tests
@@ -38,23 +38,23 @@ Tests are located in the  directory and cover:
 • 	Conditional and cross-field rules
 • 	Custom validation hooks
 
-📥 Installation
+### 📥 Installation
 Not published yet — coming soon!
 ```bash
 npm install regulated-form-validator
 ```
-📜 License
+### 📜 License
 MIT © 2026 Abhiraj Madan Marne
 
-💡 Roadmap
+### 💡 Roadmap
 • 	✅ Local demo app for testing
 • 	🚧 Publish to npm registry
 • 	🚧 Add more domain-specific validation rules
 • 	🚧 Expand documentation with examples
 
-🤝 Contributing
+### 🤝 Contributing
 Contributions, issues, and feature requests are welcome!
 Feel free to open a PR or start a discussion in the issues section.
 
-🌟 Why This Matters
+### 🌟 Why This Matters
 This project aims to make regulated form validation simple, declarative, and auditor-friendly. By using YAML/JSON configs, developers can build compliance-ready forms without reinventing validation logic for BFSI, healthcare, and other sensitive domains.

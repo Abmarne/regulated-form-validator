@@ -14,9 +14,11 @@ Since the package is not yet published, you can test it locally using the includ
 ```bash
 # Navigate to the project root
 cd regulated-form-validator
+
 # Modify demo files
 example/App.jsx
 example/config.yaml
+
 # Start the Vite dev server
 npm run dev
 ```
@@ -28,6 +30,7 @@ Run unit tests locally to validate your form logic:
 ```bash
 # Run all tests
 npm test
+
 # Run tests in watch mode (helpful during development)
 npm run test:watch
 ```

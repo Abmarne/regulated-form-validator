@@ -1,0 +1,91 @@
+fields:
+  - name: fullName
+    label: Full Name
+    type: text
+    validation:
+      - type: required
+        message: "Full name is required"
+      - type: regex
+        pattern: "^[A-Za-z ]+$"
+        message: "Only letters and spaces"
+      - type: length
+        min: 3
+        message: "At least 3 characters"
+
+  - name: dob
+    label: Date of Birth
+    type: date
+    validation:
+      - type: required
+        message: "DOB is required"
+      - type: date
+        ageMin: 18
+        message: "Must be 18+"
+
+  - name: pan
+    label: PAN
+    type: text
+    validation:
+      - type: required
+      - type: pan
+        message: "Invalid PAN"
+
+  - name: ifsc
+    label: IFSC
+    type: text
+    validation:
+      - type: required
+      - type: ifsc
+        message: "Invalid IFSC"
+
+  - name: aadhaar
+    label: Aadhaar
+    type: text
+    validation:
+      - type: required
+      - type: aadhaar
+        message: "Must be 12 digits"
+
+  - name: accountNo
+    label: Account Number
+    type: text
+    validation:
+      - type: required
+      - type: length
+        min: 9
+        max: 18
+        message: "Account number must be 9–18 digits"
+
+  - name: confirmAccount
+    label: Confirm Account Number
+    type: text
+    validation:
+      - type: crossField
+        field: accountNo
+        message: "Account numbers must match"
+
+  - name: nomineeRelation
+    label: Nominee Relation
+    type: select
+    options: ["Spouse","Parent","Child","Other"]
+
+  - name: nomineeName
+    label: Nominee Name
+    type: text
+    validation:
+      - type: required
+        message: "Nominee required"
+        when:
+          field: nomineeRelation
+          notEmpty: true
+      - type: regex
+        pattern: "^[A-Za-z ]+$"
+        message: "Only letters"
+
+  - name: email
+    label: Email
+    type: email
+    validation:
+      - type: regex
+        pattern: "^[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,}$"
+        message: "Invalid email"

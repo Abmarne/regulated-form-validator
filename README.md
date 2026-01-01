@@ -11,4 +11,18 @@ YAML-driven, dynamic form validation and rendering for React. Define fields and 
 
 ## 📥 Installation
 ```bash
-npm install regulated-form-validator
+npm install regulated-form-validator (Not Published yet)
+
+### 🧪 Local Testing / Development
+Since the package is not yet published, you can test it locally using the included demo app:
+- Navigate to the project root.
+- Make changes in the demo files:
+- example/App.jsx
+- example/config.yaml
+- Start the Vite dev server:
+```bash
+npm run dev
+- Open http://localhost:5173 in your browser to interact with the form.
+
+### 📜 License
+MIT © 2026 Abhiraj Madan Marne

@@ -3,11 +3,11 @@ YAML-driven, dynamic form validation and rendering for React.
 Define fields and rules in YAML/JSON, render forms automatically, and enforce compliance-ready validations for BFSI, healthcare, and other regulated domains.
 
 ### ✨ Features
-• 	*** Declarative config: *** Define fields and rules in YAML/JSON.
-• 	*** Dynamic rendering: ***  Auto-generate React forms from config.
-• 	*** Rich validations: ***  required,regex,length,enum,number,date,crossField,conditional(when),custom.
-• 	*** BFSI rules built-in: ***  PAN, IFSC, Aadhaar.
-• 	*** Auditor-friendly: ***  Human-readable config files for compliance reviews.
+• 	Declarative config: Define fields and rules in YAML/JSON.
+• 	Dynamic rendering: Auto-generate React forms from config.
+• 	Rich validations: required,regex,length,enum,number,date,crossField,conditional(when),custom.
+• 	BFSI rules built-in: PAN, IFSC, Aadhaar.
+• 	Auditor-friendly: Human-readable config files for compliance reviews.
 
 ### 🧪 Local Testing / Development
 Since the package is not yet published, you can test it locally using the included demo app:

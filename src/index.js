@@ -1,8 +1,6 @@
 import { parseConfig } from "./parser.js";
 import { validateField, validateAll } from "./validator.js";
 
-import FormRenderer from "./formRenderer.js";
-
 import FormRenderer from "./formRenderer.jsx";
 
 import {

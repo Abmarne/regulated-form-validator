@@ -40,7 +40,8 @@
   },
   "scripts": {
     "build": "tsup src/index.js --format esm,cjs --minify",
-    "test": "jest --passWithNoTests",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
     "prepare": "npm run build",
     "dev": "vite"  
   },

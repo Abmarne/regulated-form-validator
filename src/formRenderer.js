@@ -33,7 +33,7 @@ export default function FormRenderer({ config, onSubmit, renderField }) {
 
   const controlFor = (field, value, onChange, onBlur) => {
     const common = {
-      id: field.name, // ✅ ensure id matches label htmlFor
+      id: field.name,
       name: field.name,
       value: value ?? "",
       onChange,

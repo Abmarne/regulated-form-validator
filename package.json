@@ -9,8 +9,7 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
@@ -41,7 +40,7 @@
     "vite": "^7.3.0"
   },
   "scripts": {
-    "build": "tsup src/index.js --format esm,cjs --dts --minify",
+    "build": "tsup src/index.js --format esm,cjs --minify --loader .js=jsx && copy index.d.ts dist\\index.d.ts",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "prepare": "npm run build",

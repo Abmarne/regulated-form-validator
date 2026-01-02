@@ -5,3 +5,7 @@ src/**/*.test.*
 node_modules
 .vscode
 coverage
+
+# security
+.npmrc
+

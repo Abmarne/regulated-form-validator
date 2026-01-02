@@ -1,4 +1,5 @@
 import { validateField } from "../src/validator.js";
+import { addCustom } from "../src/customRegistry.js";
 
 describe("Length rule", () => {
   test("fails when shorter than min", () => {
@@ -84,11 +85,16 @@ describe("Date rule", () => {
   });
 });
 
-describe("Custom rule", () => {
+describe("Custom rule (registry)", () => {
+  beforeAll(() => {
+    // Register a safe custom rule for testing
+    addCustom("containsXYZ", (value) => String(value ?? "").includes("XYZ"));
+  });
+
   test("passes when custom function returns true", () => {
     const field = {
       name: "customField",
-      validation: [{ type: "custom", custom: "(value) => value.includes('XYZ')" }]
+      validation: [{ type: "custom", custom: "containsXYZ" }]
     };
     expect(validateField(field, "containsXYZ", {}).valid).toBe(true);
   });
@@ -96,7 +102,7 @@ describe("Custom rule", () => {
   test("fails when custom function returns false", () => {
     const field = {
       name: "customField",
-      validation: [{ type: "custom", custom: "(value) => value.includes('XYZ')" }]
+      validation: [{ type: "custom", custom: "containsXYZ" }]
     };
     expect(validateField(field, "nope", {}).valid).toBe(false);
   });

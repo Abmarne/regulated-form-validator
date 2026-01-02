@@ -79,6 +79,9 @@ export interface FieldConfig {
 
   /** Validation rules */
   validation?: ValidationRule[];
+
+  /** Options for select fields */
+  options?: string[];
 }
 
 /**
@@ -104,6 +107,11 @@ export interface ValidationSummary {
   valid: boolean;
   errors: Record<string, string>;
 }
+
+/**
+ * Parse a YAML or JSON config into a FormConfig.
+ */
+export function parseConfig(config: string | object): FormConfig;
 
 /**
  * Validate a single field.
@@ -137,3 +145,15 @@ export function getCustom(
 ): ((value: any, values?: Record<string, any>, rule?: ValidationRule) => boolean) | undefined;
 
 export function listCustom(): string[];
+
+/**
+ * React form renderer component.
+ */
+export interface FormRendererProps {
+  config: FormConfig;
+  values?: Record<string, any>;
+  onChange?: (name: string, value: any) => void;
+  onSubmit?: (values: Record<string, any>) => void;
+}
+
+export const FormRenderer: React.ComponentType<FormRendererProps>;

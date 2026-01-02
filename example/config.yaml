@@ -27,6 +27,7 @@ fields:
     type: text
     validation:
       - type: required
+        message: "PAN is required"
       - type: pan
         message: "Invalid PAN"
 
@@ -35,6 +36,7 @@ fields:
     type: text
     validation:
       - type: required
+        message: "IFSC is required"
       - type: ifsc
         message: "Invalid IFSC"
 
@@ -43,6 +45,7 @@ fields:
     type: text
     validation:
       - type: required
+        message: "Aadhaar is required"
       - type: aadhaar
         message: "Must be 12 digits"
 
@@ -51,6 +54,7 @@ fields:
     type: text
     validation:
       - type: required
+        message: "Account number is required"
       - type: length
         min: 9
         max: 18
@@ -67,7 +71,11 @@ fields:
   - name: nomineeRelation
     label: Nominee Relation
     type: select
-    options: ["Spouse","Parent","Child","Other"]
+    options:
+      - Spouse
+      - Parent
+      - Child
+      - Other
 
   - name: nomineeName
     label: Nominee Name

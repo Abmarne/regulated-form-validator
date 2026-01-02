@@ -9,6 +9,67 @@ Define fields and rules in YAML/JSON, render forms automatically, and enforce co
 • 	BFSI rules built-in: PAN, IFSC, Aadhaar.  
 • 	Auditor-friendly: Human-readable config files for compliance reviews.   
 
+### 📥 Installation
+```bash
+npm install regulated-form-validator
+```
+
+### 📖 Usage
+1. Define a YAML Config
+```Yaml
+fields:
+  - name: fullName
+    label: Full Name
+    type: text
+    validation:
+      - type: required
+        message: "Full name is required"
+      - type: regex
+        pattern: "^[A-Za-z ]+$"
+        message: "Only letters and spaces"
+      - type: length
+        min: 3
+        message: "At least 3 characters"
+
+  - name: pan
+    label: PAN
+    type: text
+    validation:
+      - type: required
+        message: "PAN is required"
+      - type: pan
+        message: "Invalid PAN"
+```
+
+2. Load and Render in React
+```jsx
+import React from "react";
+import { parseConfig, FormRenderer, validateAll } from "regulated-form-validator";
+import yaml from "js-yaml";
+import fs from "fs";
+
+const config = parseConfig("form-config.yaml");
+
+export default function App() {
+  return (
+    <FormRenderer
+      config={config}
+      onSubmit={(values) => {
+        const result = validateAll(config.fields, values);
+        console.log(result);
+      }}
+    />
+  );
+}
+```
+
+3. Add Custom Rules
+```Js
+import { addCustom } from "regulated-form-validator";
+
+addCustom("onlyLetters", (value) => /^[A-Za-z]+$/.test(String(value ?? "")));
+```
+
 ### 🧪 Local Testing / Development
 Since the package is not yet published, you can test it locally using the included demo app:
 ```bash
@@ -41,11 +102,6 @@ Tests are located in the  directory and cover:
 • 	Conditional and cross-field rules  
 • 	Custom validation hooks
 
-### 📥 Installation
-Not published yet — coming soon!
-```bash
-npm install regulated-form-validator
-```
 ### 📜 License
 MIT © 2026 Abhiraj Madan Marne
 

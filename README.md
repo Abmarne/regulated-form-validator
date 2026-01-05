@@ -5,7 +5,7 @@ Define fields and rules in YAML/JSON, render forms automatically, and enforce co
 ### ✨ Features
 • 	**Declarative config:** Define fields and rules in YAML/JSON.  
 • 	**Dynamic rendering:** Auto-generate React forms from config.  
-• 	**Rich validations:** required,regex,length,enum,number,date,crossField,conditional(when),custom.  
+• 	**Rich validations:** `required`,`regex`,`length`,`enum`,`number`,`date`,`crossField`,`conditional(when)`,`custom`.  
 • 	**BFSI rules built-in:** PAN, IFSC, Aadhaar.  
 • 	**Auditor-friendly:** Human-readable config files for compliance reviews.   
 

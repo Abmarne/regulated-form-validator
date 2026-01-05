@@ -131,7 +131,7 @@ const CustomNameField = {
 };
 ```
 
-2. **Add allowedChars and messageOnInvalid**
+2. **Add `allowedChars` and `messageOnInvalid`**
 ```js
 const NumericCodeField = {
   name: "code",

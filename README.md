@@ -3,11 +3,11 @@ YAML-driven, dynamic form validation and rendering for React.
 Define fields and rules in YAML/JSON, render forms automatically, and enforce compliance-ready validations for BFSI, healthcare, and other regulated domains.
 
 ### ✨ Features
-• 	Declarative config: Define fields and rules in YAML/JSON.  
-• 	Dynamic rendering: Auto-generate React forms from config.  
-• 	Rich validations: required,regex,length,enum,number,date,crossField,conditional(when),custom.  
-• 	BFSI rules built-in: PAN, IFSC, Aadhaar.  
-• 	Auditor-friendly: Human-readable config files for compliance reviews.   
+• 	**Declarative config:** Define fields and rules in YAML/JSON.  
+• 	**Dynamic rendering:** Auto-generate React forms from config.  
+• 	**Rich validations:** required,regex,length,enum,number,date,crossField,conditional(when),custom.  
+• 	**BFSI rules built-in:** PAN, IFSC, Aadhaar.  
+• 	**Auditor-friendly:** Human-readable config files for compliance reviews.   
 
 ### 📥 Installation
 ```bash
@@ -15,7 +15,7 @@ npm install regulated-form-validator
 ```
 
 ### 📖 Usage
-1. Define a YAML Config
+1. **Define a YAML Config**
 ```Yaml
 fields:
   - name: fullName
@@ -41,7 +41,7 @@ fields:
         message: "Invalid PAN"
 ```
 
-2. Load and Render in React
+2. **Load and Render in React**
 ```jsx
 import React from "react";
 import { parseConfig, FormRenderer, validateAll } from "regulated-form-validator";
@@ -63,11 +63,89 @@ export default function App() {
 }
 ```
 
-3. Add Custom Rules
-```Js
-import { addCustom } from "regulated-form-validator";
+## 📋 Preset Fields
 
-addCustom("onlyLetters", (value) => /^[A-Za-z]+$/.test(String(value ?? "")));
+The library ships with **ready-to-use preset fields** for common daily-use scenarios as well as BFSI and healthcare domains. Each preset includes strict validations, per-character filtering (`allowedChars`), and immediate error feedback (`messageOnInvalid`).
+
+### Daily-Use Fields
+- **NameField**
+  - Type: `text`
+  - Validations: required, alphabets only, 2–50 characters
+  - allowedChars: `/^[A-Za-z\s]$/`
+  - messageOnInvalid: "Only alphabets and spaces are allowed"
+
+- **EmailField**
+  - Type: `email`
+  - Validations: required, proper email format
+  - allowedChars: `/^[A-Za-z0-9._%+-@]$/`
+  - messageOnInvalid: "Only letters, numbers, and email special characters are allowed"
+
+- **PincodeField**
+  - Type: `text`
+  - Validations: required, exactly 6 digits
+  - allowedChars: `/^[0-9]$/`
+  - messageOnInvalid: "Only digits are allowed in PIN Code"
+
+- **PhoneField**
+  - Type: `tel`
+  - Validations: required, exactly 10 digits
+  - allowedChars: `/^[0-9]$/`
+  - messageOnInvalid: "Only digits are allowed in Phone Number"
+
+- **AddressField**
+  - Type: `text`
+  - Validations: required, alphanumeric + space/comma/dot/hyphen, 5–100 characters
+  - allowedChars: `/^[A-Za-z0-9\s,.-]$/`
+  - messageOnInvalid: "Only letters, numbers, spaces, commas, dots, and hyphens are allowed"
+
+- **GenderField**
+  - Type: `select`
+  - Validations: required
+  - Options: `Male`, `Female`, `Other`
+
+- **PasswordField**
+  - Type: `password`
+  - Validations: required, min 8 chars, must include uppercase, lowercase, number, special character
+  - allowedChars: `/^[A-Za-z0-9@$!%*?&]$/`
+  - messageOnInvalid: "Only letters, numbers, and @$!%*?& characters are allowed"
+
+- **ConfirmPasswordField**
+  - Type: `password`
+  - Validations: required, must match `PasswordField`
+  - allowedChars: `/^[A-Za-z0-9@$!%*?&]$/`
+  - messageOnInvalid: "Only letters, numbers, and @$!%*?& characters are allowed"
+
+### 🔧 Customization
+You can customize fields in several ways:
+1. **Override presets**
+```js
+import { NameField } from "regulated-form-validator";
+
+const CustomNameField = {
+  ...NameField,
+  label: "Applicant Name",
+  validation: [
+    ...NameField.validation,
+    { type: "regex", pattern: "^[A-Za-z]+$", message: "No spaces allowed" }
+  ]
+};
+```
+
+2. **Add allowedChars and messageOnInvalid**
+```js
+const NumericCodeField = {
+  name: "code",
+  label: "Numeric Code",
+  type: "text",
+  validation: [{ type: "required", message: "Code is required" }],
+  allowedChars: /^[0-9]$/,
+  messageOnInvalid: "Only digits are allowed"
+};
+```
+
+3. **Custom rules via addCustom**
+```js
+addCustom("startsWithA", (value) => String(value ?? "").startsWith("A"));
 ```
 
 ### 🧪 Local Testing / Development

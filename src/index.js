@@ -1,16 +1,13 @@
 import { parseConfig } from "./parser.js";
 import { validateField, validateAll } from "./validator.js";
-
 import FormRenderer from "./formRenderer.jsx";
+import { addCustom, removeCustom, getCustom, listCustom } from "./fields/customRegistry.js";
 
-import {
-  addCustom,
-  removeCustom,
-  getCustom,
-  listCustom
-} from "./customRegistry.js";
+// Re-export fields
+export * from "./fields/presets.js";
+export * from "./fields/bfsi.js";
+export * from "./fields/healthcare.js";
 
-// Named exports
 export {
   parseConfig,
   validateField,
@@ -22,7 +19,6 @@ export {
   listCustom
 };
 
-// Default export (aggregated object)
 export default {
   parseConfig,
   validateField,

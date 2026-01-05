@@ -1,9 +1,4 @@
-import panRule from "./rules/pan.js";
-import ifscRule from "./rules/ifsc.js";
-import aadhaarRule from "./rules/aadhaar.js";
-import { getCustom } from "./customRegistry.js";
-
-const builtIn = { pan: panRule, ifsc: ifscRule, aadhaar: aadhaarRule };
+import { getCustom } from "./fields/customRegistry.js";
 
 function checkCondition(rule, values) {
   if (!rule.when) return true;
@@ -31,7 +26,8 @@ function applyRule(rule, value, values) {
 
     case "regex": {
       const flags = rule.flags || "";
-      const re = new RegExp(rule.pattern, flags);
+      const pattern = rule.pattern || rule.regex; // support both
+      const re = new RegExp(pattern, flags);
       return re.test(String(value ?? ""))
         ? { valid: true }
         : { valid: false, message: rule.message || "Invalid format" };
@@ -49,45 +45,6 @@ function applyRule(rule, value, values) {
       return { valid: true };
     }
 
-    case "enum": {
-      return (rule.options || []).includes(value)
-        ? { valid: true }
-        : { valid: false, message: rule.message || "Invalid value" };
-    }
-
-    case "number": {
-      const num = Number(value);
-      if (Number.isNaN(num))
-        return { valid: false, message: rule.message || "Must be a number" };
-      if (rule.min != null && num < rule.min)
-        return { valid: false, message: rule.message || `Must be ≥ ${rule.min}` };
-      if (rule.max != null && num > rule.max)
-        return { valid: false, message: rule.message || `Must be ≤ ${rule.max}` };
-      return { valid: true };
-    }
-
-    case "date": {
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime()))
-        return { valid: false, message: rule.message || "Invalid date" };
-
-      if (rule.before && date >= new Date(rule.before))
-        return { valid: false, message: rule.message || `Must be before ${rule.before}` };
-
-      if (rule.after && date <= new Date(rule.after))
-        return { valid: false, message: rule.message || `Must be after ${rule.after}` };
-
-      if (rule.ageMin != null) {
-        const now = new Date();
-        let age = now.getFullYear() - date.getFullYear();
-        const m = now.getMonth() - date.getMonth();
-        if (m < 0 || (m === 0 && now.getDate() < date.getDate())) age--;
-        if (age < rule.ageMin)
-          return { valid: false, message: rule.message || `Must be at least ${rule.ageMin}` };
-      }
-      return { valid: true };
-    }
-
     case "crossField": {
       const otherVal = values?.[rule.field];
       return String(value ?? "") === String(otherVal ?? "")
@@ -96,34 +53,20 @@ function applyRule(rule, value, values) {
     }
 
     case "custom": {
-      // Secure lookup of a pre-registered function by key: rule.custom
-      // Optional: pass rule.extra for parameterized custom logic.
       const fn = getCustom(rule.custom);
       if (typeof fn !== "function") {
         return { valid: false, message: rule.message || `Unknown custom rule: ${rule.custom}` };
       }
-      const ok = safeInvoke(fn, value, values, rule);
-      return ok ? { valid: true } : { valid: false, message: rule.message || "Invalid value" };
-    }
-
-    default: {
-      if (builtIn[rule.type]) {
-        return builtIn[rule.type](value)
-          ? { valid: true }
-          : { valid: false, message: rule.message || "Invalid input" };
+      try {
+        const ok = fn(value, values, rule);
+        return ok ? { valid: true } : { valid: false, message: rule.message || "Invalid value" };
+      } catch {
+        return { valid: false, message: rule.message || "Custom rule failed" };
       }
-      // Unknown rule type → treat as pass (non-blocking)
-      return { valid: true };
     }
-  }
-}
 
-function safeInvoke(fn, value, values, rule) {
-  try {
-    return !!fn(value, values, rule);
-  } catch (_err) {
-    // If a custom function throws, fail safely with a generic message
-    return false;
+    default:
+      return { valid: true };
   }
 }
 

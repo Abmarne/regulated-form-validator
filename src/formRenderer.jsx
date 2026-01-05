@@ -1,121 +1,79 @@
 import React, { useState } from "react";
-import { validateField, validateAll } from "./validator.js";
+import { validateAll, validateField } from "./validator.js";
 
-/**
- * Props:
- * - config: { fields: Array<{ name, label, type, validation?: Rule[], options?: string[] }> }
- * - onSubmit?: (values) => void
- * - renderField?: (field, control, error) => ReactNode
- */
-export default function FormRenderer({ config, onSubmit, renderField }) {
-  const fields = Array.isArray(config?.fields) ? config.fields : [];
+export default function FormRenderer({ config, onSubmit }) {
   const [values, setValues] = useState({});
   const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
 
-  const handleChange = (field, e) => {
-    const value = e?.target ? e.target.value : e;
-    const next = { ...values, [field.name]: value };
-    setValues(next);
-    const res = validateField(field, value, next);
-    setErrors({ ...errors, [field.name]: res.valid ? null : res.message });
-  };
+  if (!config?.fields?.length) {
+    return <div>No fields configured</div>;
+  }
 
-  const handleBlur = (field) =>
-    setTouched((t) => ({ ...t, [field.name]: true }));
+const handleChange = (e, field) => {
+  const rawVal = e.target.value;
+  let val = rawVal;
+
+  let invalidCharUsed = false;
+
+  // Strict filtering using allowedChars
+  if (field.allowedChars) {
+    const filtered = rawVal
+      .split("")
+      .filter((ch) => field.allowedChars.test(ch))
+      .join("");
+
+    if (filtered !== rawVal) {
+      invalidCharUsed = true; // 👈 flag invalid character
+      val = filtered;
+    } else {
+      val = rawVal;
+    }
+  }
+
+  const newValues = { ...values, [field.name]: val };
+  setValues(newValues);
+
+  // Run normal validation
+  const res = validateField(field, val, newValues);
+
+  // Decide which error to show
+  setErrors({
+    ...errors,
+    [field.name]: invalidCharUsed
+      ? field.messageOnInvalid || "Invalid character entered"
+      : res.valid
+      ? null
+      : res.message
+  });
+};
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const res = validateAll(fields, values);
-    setErrors(res.errors);
-    if (res.valid && typeof onSubmit === "function") onSubmit(values);
-  };
-
-  const controlFor = (field, value, onChange, onBlur) => {
-    const common = {
-      id: field.name,
-      name: field.name,
-      value: value ?? "",
-      onChange,
-      onBlur,
-      "aria-invalid": Boolean(errors[field.name]),
-      "aria-describedby": errors[field.name]
-        ? `${field.name}-error`
-        : undefined,
-    };
-
-    switch (field.type) {
-      case "select":
-        return (
-          <select {...common}>
-            <option value="">Select...</option>
-            {(field.options || []).map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        );
-      case "textarea":
-        return <textarea {...common} rows={3} />;
-      case "number":
-        return <input {...common} type="number" />;
-      case "date":
-        return <input {...common} type="date" />;
-      default:
-        return <input {...common} type={field.type || "text"} />;
+    const result = validateAll(config.fields, values);
+    setErrors(result.errors);
+    if (result.valid) {
+      onSubmit(values);
     }
   };
 
-  const isSubmitDisabled = () => {
-    const hasErrors = Object.values(errors).some(Boolean);
-    const requiredFields = fields.filter((f) =>
-      (f.validation || []).some((r) => r.type === "required" && !r.when)
-    );
-    const anyRequiredEmpty = requiredFields.some((f) => {
-      const v = values[f.name];
-      return v == null || String(v).trim() === "";
-    });
-    return hasErrors || anyRequiredEmpty;
-  };
-
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      {fields.map((field) => {
-        const value = values[field.name];
-        const error = errors[field.name];
-        const control = controlFor(
-          field,
-          value,
-          (e) => handleChange(field, e),
-          () => handleBlur(field)
-        );
-
-        return (
-          <div key={field.name} style={{ marginBottom: 12 }}>
-            <label
-              htmlFor={field.name}
-              style={{ display: "block", fontWeight: 600 }}
-            >
-              {field.label}
-            </label>
-
-            {renderField ? renderField(field, control, error) : control}
-
-            {touched[field.name] && error && (
-              <span
-                id={`${field.name}-error`}
-                style={{ color: "crimson", fontSize: 12 }}
-              >
-                {error}
-              </span>
-            )}
-          </div>
-        );
-      })}
-      <button type="submit" disabled={isSubmitDisabled()}>
-        Submit
-      </button>
+    <form onSubmit={handleSubmit}>
+      {config.fields.map((field) => (
+        <div key={field.name} style={{ marginBottom: "1rem" }}>
+          <label>{field.label}</label>
+          <input
+            name={field.name}
+            type={field.type || "text"}
+            value={values[field.name] || ""}
+            onChange={(e) => handleChange(e, field)}
+            maxLength={field.max || undefined}   // 👈 enforce max length at input level
+          />
+          {errors[field.name] && (
+            <div style={{ color: "red" }}>{errors[field.name]}</div>
+          )}
+        </div>
+      ))}
+      <button type="submit">Submit</button>
     </form>
   );
 }

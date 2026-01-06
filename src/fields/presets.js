@@ -1,6 +1,6 @@
-// Daily-use fields with strict validations — all required
-// Each field now includes `allowedChars` for per-character filtering
-// and `messageOnInvalid` for immediate error feedback
+// ===============================
+// Common Daily-use Fields with Strict Validations
+// ===============================
 
 // 1. NameField → only alphabets, required
 export const NameField = {
@@ -22,7 +22,7 @@ export const NameField = {
     }
   ],
   max: 50,
-  allowedChars: /^[A-Za-z\s]$/,   // 👈 only alphabets + spaces
+  allowedChars: /^[A-Za-z\s]$/,
   messageOnInvalid: "Only alphabets and spaces are allowed"
 };
 
@@ -40,7 +40,7 @@ export const PincodeField = {
     }
   ],
   max: 6,
-  allowedChars: /^[0-9]$/,   // 👈 only digits
+  allowedChars: /^[0-9]$/,
   messageOnInvalid: "Only digits are allowed in PIN Code"
 };
 
@@ -57,7 +57,7 @@ export const EmailField = {
       message: "Invalid email address format"
     }
   ],
-  allowedChars: /^[A-Za-z0-9._%+-@]$/,   // 👈 alphanumeric + email specials
+  allowedChars: /^[A-Za-z0-9._%+-@]$/,
   messageOnInvalid: "Only letters, numbers, and email special characters are allowed"
 };
 
@@ -75,11 +75,11 @@ export const AddressField = {
     }
   ],
   max: 100,
-  allowedChars: /^[A-Za-z0-9\s,.-]$/,   // 👈 alphanumeric + space/comma/dot/hyphen
+  allowedChars: /^[A-Za-z0-9\s,.-]$/,
   messageOnInvalid: "Only letters, numbers, spaces, commas, dots, and hyphens are allowed"
 };
 
-// Phone number → only digits, required
+// 5. PhoneField → only digits, required
 export const PhoneField = {
   name: "phone",
   label: "Phone Number",
@@ -93,22 +93,20 @@ export const PhoneField = {
     }
   ],
   max: 10,
-  allowedChars: /^[0-9]$/,   // 👈 only digits
+  allowedChars: /^[0-9]$/,
   messageOnInvalid: "Only digits are allowed in Phone Number"
 };
 
-// Gender → required select
+// 6. GenderField → required select
 export const GenderField = {
   name: "gender",
   label: "Gender",
   type: "select",
   options: ["Male", "Female", "Other"],
-  validation: [
-    { type: "required", message: "Gender is required" }
-  ]
+  validation: [{ type: "required", message: "Gender is required" }]
 };
 
-// Password → strong password, required
+// 7. PasswordField → strong password, required
 export const PasswordField = {
   name: "password",
   label: "Password",
@@ -124,11 +122,11 @@ export const PasswordField = {
     }
   ],
   min: 8,
-  allowedChars: /^[A-Za-z0-9@$!%*?&]$/,   // 👈 letters, digits, special chars
+  allowedChars: /^[A-Za-z0-9@$!%*?&]$/,
   messageOnInvalid: "Only letters, numbers, and @$!%*?& characters are allowed"
 };
 
-// Confirm Password → must match Password, required
+// 8. ConfirmPasswordField → must match Password, required
 export const ConfirmPasswordField = {
   name: "confirmPassword",
   label: "Confirm Password",
@@ -137,6 +135,95 @@ export const ConfirmPasswordField = {
     { type: "required", message: "Confirm Password is required" },
     { type: "crossField", field: "password", message: "Passwords must match" }
   ],
-  allowedChars: /^[A-Za-z0-9@$!%*?&]$/,   // 👈 same as Password
+  allowedChars: /^[A-Za-z0-9@$!%*?&]$/,
   messageOnInvalid: "Only letters, numbers, and @$!%*?& characters are allowed"
+};
+
+// ===============================
+// Extra Common Defaults
+// ===============================
+
+// 9. DobField → must be valid date, cannot be today's date
+export const DobField = {
+  name: "dob",
+  label: "Date of Birth",
+  type: "date",
+  validation: [
+    { type: "required", message: "Date of Birth is required" },
+    {
+      type: "date",
+      notEquals: new Date().toISOString().split("T")[0], // disallow today's date
+      message: "Date of Birth cannot be today's or future date"
+    }
+  ]
+};
+
+// 10. UsernameField → alphanumeric + underscore, required
+export const UsernameField = {
+  name: "username",
+  label: "Username",
+  type: "text",
+  validation: [
+    { type: "required", message: "Username is required" },
+    {
+      type: "regex",
+      pattern: "^[A-Za-z0-9_]{5,20}$",
+      message: "Username must be 5–20 characters, letters/numbers/underscores only"
+    }
+  ],
+  min: 5,
+  max: 20,
+  allowedChars: /^[A-Za-z0-9_]$/,
+  messageOnInvalid: "Only letters, numbers, and underscores are allowed"
+};
+
+// 11. OTPField → 6-digit numeric code
+export const OTPField = {
+  name: "otp",
+  label: "OTP",
+  type: "text",
+  validation: [
+    { type: "required", message: "OTP is required" },
+    {
+      type: "regex",
+      pattern: "^\\d{6}$",
+      message: "OTP must be exactly 6 digits"
+    }
+  ],
+  max: 6,
+  allowedChars: /^[0-9]$/,
+  messageOnInvalid: "Only digits are allowed in OTP"
+};
+
+// 12. AlternateEmailField → optional email
+export const AlternateEmailField = {
+  name: "alternateEmail",
+  label: "Alternate Email",
+  type: "email",
+  validation: [
+    {
+      type: "regex",
+      pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+      message: "Invalid email address format"
+    }
+  ],
+  allowedChars: /^[A-Za-z0-9._%+-@]$/,
+  messageOnInvalid: "Only letters, numbers, and email special characters are allowed"
+};
+
+// 13. AlternatePhoneField → optional phone
+export const AlternatePhoneField = {
+  name: "alternatePhone",
+  label: "Alternate Phone Number",
+  type: "tel",
+  validation: [
+    {
+      type: "regex",
+      pattern: "^\\d{10}$",
+      message: "Phone number must be exactly 10 digits"
+    }
+  ],
+  max: 10,
+  allowedChars: /^[0-9]$/,
+  messageOnInvalid: "Only digits are allowed in Phone Number"
 };

@@ -1,74 +1,117 @@
-// fields/bfsi.js
+// ===============================
+// BFSI Fields with Strict Validations
+// ===============================
 
+// PAN → Permanent Account Number
 export const PANField = {
   name: "pan",
   label: "PAN Number",
   type: "text",
   validation: [
+    { type: "required", message: "PAN is required" },
     {
-      regex: "^[A-Z]{5}[0-9]{4}[A-Z]$",
-      message: "Invalid PAN format"
+      type: "regex",
+      pattern: "^[A-Z]{5}[0-9]{4}[A-Z]$",
+      message: "Invalid PAN format (e.g., ABCDE1234F)"
     }
-  ]
+  ],
+  min: 10,
+  max: 10,
+  allowedChars: /^[A-Z0-9]$/,
+  messageOnInvalid: "Only uppercase letters and digits are allowed"
 };
 
+// IFSC → Indian Financial System Code
 export const IFSCField = {
   name: "ifsc",
   label: "IFSC Code",
   type: "text",
   validation: [
+    { type: "required", message: "IFSC Code is required" },
     {
-      regex: "^[A-Z]{4}0[A-Z0-9]{6}$",
-      message: "Invalid IFSC code"
+      type: "regex",
+      pattern: "^[A-Z]{4}0[A-Z0-9]{6}$",
+      message: "Invalid IFSC format (e.g., SBIN0001234)"
     }
-  ]
+  ],
+  min: 11,
+  max: 11,
+  allowedChars: /^[A-Z0-9]$/,
+  messageOnInvalid: "Only uppercase letters and digits are allowed"
 };
 
+// Aadhaar → 12-digit numeric ID
 export const AadhaarField = {
   name: "aadhaar",
   label: "Aadhaar Number",
   type: "text",
   validation: [
+    { type: "required", message: "Aadhaar is required" },
     {
-      regex: "^\\d{12}$",
-      message: "Invalid Aadhaar number"
+      type: "regex",
+      pattern: "^\\d{12}$",
+      message: "Aadhaar must be exactly 12 digits"
     }
-  ]
+  ],
+  min: 12,
+  max: 12,
+  allowedChars: /^[0-9]$/,
+  messageOnInvalid: "Only digits are allowed in Aadhaar Number"
 };
 
+// GST → Goods and Services Tax ID
 export const GSTField = {
   name: "gst",
   label: "GST Number",
   type: "text",
   validation: [
+    { type: "required", message: "GST Number is required" },
     {
-      regex: "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$",
-      message: "Invalid GST number"
+      type: "regex",
+      pattern: "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$",
+      message: "Invalid GST format"
     }
-  ]
+  ],
+  min: 15,
+  max: 15,
+  allowedChars: /^[A-Z0-9]$/,
+  messageOnInvalid: "Only uppercase letters and digits are allowed"
 };
 
-// Optional: add more BFSI-related fields here
+// Account Number → 9–18 digits
 export const AccountNumberField = {
   name: "accountNumber",
   label: "Bank Account Number",
   type: "text",
   validation: [
+    { type: "required", message: "Account Number is required" },
     {
-      regex: "^[0-9]{9,18}$",
-      message: "Invalid Account Number"
+      type: "regex",
+      pattern: "^[0-9]{9,18}$",
+      message: "Account Number must be 9–18 digits"
     }
-  ]
+  ],
+  min: 9,
+  max: 18,
+  allowedChars: /^[0-9]$/,
+  messageOnInvalid: "Only digits are allowed in Account Number"
 };
 
+// MICR → 9-digit numeric code
 export const MICRField = {
   name: "micr",
   label: "MICR Code",
   type: "text",
   validation: [
+    { type: "required", message: "MICR Code is required" },
     {
-      regex: "^[0-9]{9}$",
-      message: "Invalid MICR Code"
+      type: "regex",
+      pattern: "^[0-9]{9}$",
+      message: "MICR Code must be exactly 9 digits"
     }
-  ]
+  ],
+  min: 9,
+  max: 9,
+  allowedChars: /^[0-9]$/,
+  messageOnInvalid: "Only digits are allowed in MICR Code"
 };

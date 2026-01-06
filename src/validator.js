@@ -52,6 +52,31 @@ function applyRule(rule, value, values) {
         : { valid: false, message: rule.message || "Values must match" };
     }
 
+    case "date": {
+      if (!value) return { valid: true }; // skip if empty, let "required" handle emptiness
+      const inputDate = new Date(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // normalize to midnight
+
+      // Disallow today or future dates
+      if (inputDate >= today) {
+        return {
+          valid: false,
+          message: rule.message || "Date must be before today"
+        };
+      }
+
+      // Optional extra constraints
+      if (rule.before && inputDate >= new Date(rule.before)) {
+        return { valid: false, message: rule.message || `Date must be before ${rule.before}` };
+      }
+      if (rule.after && inputDate <= new Date(rule.after)) {
+        return { valid: false, message: rule.message || `Date must be after ${rule.after}` };
+      }
+
+      return { valid: true };
+    }
+
     case "custom": {
       const fn = getCustom(rule.custom);
       if (typeof fn !== "function") {

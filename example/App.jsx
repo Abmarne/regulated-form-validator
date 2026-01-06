@@ -6,12 +6,13 @@ import {
   EmailField,
   PincodeField,
   PasswordField,
-  ConfirmPasswordField
+  ConfirmPasswordField,
+  DobField
 } from "../src/index";   // adjust path if needed
 
 function App() {
   const formConfig = {
-    fields: [NameField, EmailField,PincodeField, PasswordField, ConfirmPasswordField]
+    fields: [NameField, EmailField,PincodeField, PasswordField, ConfirmPasswordField,DobField]
   };
 
   console.log("App.jsx loaded");

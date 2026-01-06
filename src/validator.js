@@ -26,9 +26,16 @@ function applyRule(rule, value, values) {
 
     case "regex": {
       const flags = rule.flags || "";
-      const pattern = rule.pattern || rule.regex; // support both
+      const pattern = rule.pattern || rule.regex;
       const re = new RegExp(pattern, flags);
-      return re.test(String(value ?? ""))
+
+      // Case normalization: auto‑convert to uppercase if rule.uppercase is true
+      let val = String(value ?? "");
+      if (rule.uppercase) {
+        val = val.toUpperCase();
+      }
+
+      return re.test(val)
         ? { valid: true }
         : { valid: false, message: rule.message || "Invalid format" };
     }
@@ -37,11 +44,20 @@ function applyRule(rule, value, values) {
       const s = String(value ?? "");
       const { min, max, eq } = rule;
       if (typeof eq === "number" && s.length !== eq)
-        return { valid: false, message: rule.message || `Length must be ${eq}` };
+        return {
+          valid: false,
+          message: rule.eqMessage || rule.message || `Length must be exactly ${eq}`
+        };
       if (typeof min === "number" && s.length < min)
-        return { valid: false, message: rule.message || `Length must be ≥ ${min}` };
+        return {
+          valid: false,
+          message: rule.minMessage || rule.message || `Length must be ≥ ${min}`
+        };
       if (typeof max === "number" && s.length > max)
-        return { valid: false, message: rule.message || `Length must be ≤ ${max}` };
+        return {
+          valid: false,
+          message: rule.maxMessage || rule.message || `Length must be ≤ ${max}`
+        };
       return { valid: true };
     }
 
@@ -53,28 +69,32 @@ function applyRule(rule, value, values) {
     }
 
     case "date": {
-      if (!value) return { valid: true }; // skip if empty, let "required" handle emptiness
+      if (!value) return { valid: true };
       const inputDate = new Date(value);
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // normalize to midnight
+      today.setHours(0, 0, 0, 0);
 
-      // Disallow today or future dates
       if (inputDate >= today) {
         return {
           valid: false,
           message: rule.message || "Date must be before today"
         };
       }
-
-      // Optional extra constraints
       if (rule.before && inputDate >= new Date(rule.before)) {
         return { valid: false, message: rule.message || `Date must be before ${rule.before}` };
       }
       if (rule.after && inputDate <= new Date(rule.after)) {
         return { valid: false, message: rule.message || `Date must be after ${rule.after}` };
       }
-
       return { valid: true };
+    }
+
+    case "select": {
+      if (!value) return { valid: true }; // let "required" handle emptiness
+      const options = rule.options || [];
+      return options.includes(value)
+        ? { valid: true }
+        : { valid: false, message: rule.message || "Invalid selection" };
     }
 
     case "custom": {

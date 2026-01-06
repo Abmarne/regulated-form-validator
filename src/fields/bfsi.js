@@ -12,7 +12,13 @@ export const PANField = {
     {
       type: "regex",
       pattern: "^[A-Z]{5}[0-9]{4}[A-Z]$",
-      message: "Invalid PAN format (e.g., ABCDE1234F)"
+      message: "Invalid PAN format (e.g., ABCDE1234F)",
+      uppercase: true
+    },
+    {
+      type: "length",
+      eq: 10,
+      eqMessage: "PAN must be exactly 10 characters"
     }
   ],
   min: 10,
@@ -31,7 +37,13 @@ export const IFSCField = {
     {
       type: "regex",
       pattern: "^[A-Z]{4}0[A-Z0-9]{6}$",
-      message: "Invalid IFSC format (e.g., SBIN0001234)"
+      message: "Invalid IFSC format (e.g., SBIN0001234)",
+      uppercase: true
+    },
+    {
+      type: "length",
+      eq: 11,
+      eqMessage: "IFSC Code must be exactly 11 characters"
     }
   ],
   min: 11,
@@ -51,6 +63,11 @@ export const AadhaarField = {
       type: "regex",
       pattern: "^\\d{12}$",
       message: "Aadhaar must be exactly 12 digits"
+    },
+    {
+      type: "length",
+      eq: 12,
+      eqMessage: "Aadhaar must be exactly 12 digits"
     }
   ],
   min: 12,
@@ -69,7 +86,13 @@ export const GSTField = {
     {
       type: "regex",
       pattern: "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$",
-      message: "Invalid GST format"
+      message: "Invalid GST format",
+      uppercase: true
+    },
+    {
+      type: "length",
+      eq: 15,
+      eqMessage: "GST Number must be exactly 15 characters"
     }
   ],
   min: 15,
@@ -89,6 +112,13 @@ export const AccountNumberField = {
       type: "regex",
       pattern: "^[0-9]{9,18}$",
       message: "Account Number must be 9–18 digits"
+    },
+    {
+      type: "length",
+      min: 9,
+      max: 18,
+      minMessage: "Account Number must be at least 9 digits",
+      maxMessage: "Account Number must be at most 18 digits"
     }
   ],
   min: 9,
@@ -108,6 +138,11 @@ export const MICRField = {
       type: "regex",
       pattern: "^[0-9]{9}$",
       message: "MICR Code must be exactly 9 digits"
+    },
+    {
+      type: "length",
+      eq: 9,
+      eqMessage: "MICR Code must be exactly 9 digits"
     }
   ],
   min: 9,

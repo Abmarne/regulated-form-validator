@@ -12,7 +12,13 @@ export const PatientIDField = {
     {
       type: "regex",
       pattern: "^[A-Z0-9]{8}$",
-      message: "Invalid Patient ID (must be 8 uppercase letters/digits)"
+      message: "Invalid Patient ID (must be 8 uppercase letters/digits)",
+      uppercase: true
+    },
+    {
+      type: "length",
+      eq: 8,
+      eqMessage: "Patient ID must be exactly 8 characters"
     }
   ],
   min: 8,
@@ -31,7 +37,13 @@ export const InsuranceField = {
     {
       type: "regex",
       pattern: "^[A-Z]{2}[0-9]{6}$",
-      message: "Invalid Insurance Policy Number (e.g., AB123456)"
+      message: "Invalid Insurance Policy Number (e.g., AB123456)",
+      uppercase: true
+    },
+    {
+      type: "length",
+      eq: 8,
+      eqMessage: "Insurance Policy Number must be exactly 8 characters"
     }
   ],
   min: 8,
@@ -50,7 +62,15 @@ export const HealthIDField = {
     {
       type: "regex",
       pattern: "^[A-Z0-9]{10,16}$",
-      message: "Invalid Health ID (must be 10–16 uppercase letters/digits)"
+      message: "Invalid Health ID (must be 10–16 uppercase letters/digits)",
+      uppercase: true
+    },
+    {
+      type: "length",
+      min: 10,
+      max: 16,
+      minMessage: "Health ID must be at least 10 characters",
+      maxMessage: "Health ID must be at most 16 characters"
     }
   ],
   min: 10,
@@ -65,7 +85,10 @@ export const BloodGroupField = {
   label: "Blood Group",
   type: "select",
   options: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
-  validation: [{ type: "required", message: "Blood Group is required" }]
+  validation: [
+    { type: "required", message: "Blood Group is required" },
+    { type: "select", options: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"], message: "Invalid Blood Group" }
+  ]
 };
 
 // Medical Record Number → 6–12 digits
@@ -79,6 +102,13 @@ export const MedicalRecordField = {
       type: "regex",
       pattern: "^[0-9]{6,12}$",
       message: "Invalid Medical Record Number (must be 6–12 digits)"
+    },
+    {
+      type: "length",
+      min: 6,
+      max: 12,
+      minMessage: "Medical Record Number must be at least 6 digits",
+      maxMessage: "Medical Record Number must be at most 12 digits"
     }
   ],
   min: 6,

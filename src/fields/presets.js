@@ -18,7 +18,8 @@ export const NameField = {
       type: "length",
       min: 2,
       max: 50,
-      message: "Name must be between 2 and 50 characters"
+      minMessage: "Name must be at least 2 characters",
+      maxMessage: "Name must be at most 50 characters"
     }
   ],
   max: 50,
@@ -37,6 +38,11 @@ export const PincodeField = {
       type: "regex",
       pattern: "^\\d{6}$",
       message: "PIN Code must be exactly 6 digits (numbers only)"
+    },
+    {
+      type: "length",
+      eq: 6,
+      eqMessage: "PIN Code must be exactly 6 digits"
     }
   ],
   max: 6,
@@ -72,6 +78,13 @@ export const AddressField = {
       type: "regex",
       pattern: "^[A-Za-z0-9\\s,.-]{5,100}$",
       message: "Address must be 5–100 characters, alphanumeric only"
+    },
+    {
+      type: "length",
+      min: 5,
+      max: 100,
+      minMessage: "Address must be at least 5 characters",
+      maxMessage: "Address must be at most 100 characters"
     }
   ],
   max: 100,
@@ -90,6 +103,11 @@ export const PhoneField = {
       type: "regex",
       pattern: "^\\d{10}$",
       message: "Phone number must be exactly 10 digits"
+    },
+    {
+      type: "length",
+      eq: 10,
+      eqMessage: "Phone number must be exactly 10 digits"
     }
   ],
   max: 10,
@@ -103,7 +121,10 @@ export const GenderField = {
   label: "Gender",
   type: "select",
   options: ["Male", "Female", "Other"],
-  validation: [{ type: "required", message: "Gender is required" }]
+  validation: [
+    { type: "required", message: "Gender is required" },
+    { type: "select", options: ["Male", "Female", "Other"], message: "Invalid Gender selection" }
+  ]
 };
 
 // 7. PasswordField → strong password, required
@@ -119,6 +140,11 @@ export const PasswordField = {
         "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
       message:
         "Password must be at least 8 characters, include uppercase, lowercase, number, and special character"
+    },
+    {
+      type: "length",
+      min: 8,
+      minMessage: "Password must be at least 8 characters"
     }
   ],
   min: 8,
@@ -143,19 +169,17 @@ export const ConfirmPasswordField = {
 // Extra Common Defaults
 // ===============================
 
-// 9. DobField → must be valid date, cannot be today's date
+// 9. DobField → must be valid date, cannot be today's or future date
 export const DobField = {
   name: "dob",
   label: "Date of Birth",
   type: "date",
   validation: [
     { type: "required", message: "Date of Birth is required" },
-    {
-      type: "date",
-      notEquals: new Date().toISOString().split("T")[0], // disallow today's date
-      message: "Date of Birth cannot be today's or future date"
-    }
-  ]
+    { type: "date", message: "Date of Birth must be before today" }
+  ],
+  // Prevent selecting today/future in date picker
+  max: new Date(Date.now() - 86400000).toISOString().split("T")[0]
 };
 
 // 10. UsernameField → alphanumeric + underscore, required
@@ -169,6 +193,13 @@ export const UsernameField = {
       type: "regex",
       pattern: "^[A-Za-z0-9_]{5,20}$",
       message: "Username must be 5–20 characters, letters/numbers/underscores only"
+    },
+    {
+      type: "length",
+      min: 5,
+      max: 20,
+      minMessage: "Username must be at least 5 characters",
+      maxMessage: "Username must be at most 20 characters"
     }
   ],
   min: 5,
@@ -188,6 +219,11 @@ export const OTPField = {
       type: "regex",
       pattern: "^\\d{6}$",
       message: "OTP must be exactly 6 digits"
+    },
+    {
+      type: "length",
+      eq: 6,
+      eqMessage: "OTP must be exactly 6 digits"
     }
   ],
   max: 6,

@@ -1,5 +1,13 @@
 import { getCustom } from "./fields/customRegistry.js";
 
+/**
+ * Replace placeholders in messages with actual values
+ */
+function formatMessage(template, values = {}) {
+  if (!template) return "";
+  return template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
+}
+
 function checkCondition(rule, values) {
   if (!rule.when) return true;
   const { field, equals, notEmpty, notEquals, in: inList, notIn } = rule.when;
@@ -13,12 +21,17 @@ function checkCondition(rule, values) {
   return true;
 }
 
-function applyRule(rule, value, values) {
+async function applyRule(rule, value, values, field) {
   if (!checkCondition(rule, values)) return { valid: true };
+
+  // Normalize value
+  let val = String(value ?? "").trim();
+  if (field?.type === "email") val = val.toLowerCase();
+  if (rule.uppercase) val = val.toUpperCase();
 
   switch (rule.type) {
     case "required": {
-      const empty = value == null || String(value).trim() === "";
+      const empty = val === "";
       return empty
         ? { valid: false, message: rule.message || "This field is required" }
         : { valid: true };
@@ -28,57 +41,57 @@ function applyRule(rule, value, values) {
       const flags = rule.flags || "";
       const pattern = rule.pattern || rule.regex;
       const re = new RegExp(pattern, flags);
-
-      // Case normalization: auto‑convert to uppercase if rule.uppercase is true
-      let val = String(value ?? "");
-      if (rule.uppercase) {
-        val = val.toUpperCase();
-      }
-
       return re.test(val)
         ? { valid: true }
         : { valid: false, message: rule.message || "Invalid format" };
     }
 
     case "length": {
-      const s = String(value ?? "");
       const { min, max, eq } = rule;
-      if (typeof eq === "number" && s.length !== eq)
+      if (typeof eq === "number" && val.length !== eq)
         return {
           valid: false,
-          message: rule.eqMessage || rule.message || `Length must be exactly ${eq}`
+          message: formatMessage(rule.eqMessage || rule.message || "Length must be {eq}", { eq })
         };
-      if (typeof min === "number" && s.length < min)
+      if (typeof min === "number" && val.length < min)
         return {
           valid: false,
-          message: rule.minMessage || rule.message || `Length must be ≥ ${min}`
+          message: formatMessage(rule.minMessage || rule.message || "Length must be ≥ {min}", { min })
         };
-      if (typeof max === "number" && s.length > max)
+      if (typeof max === "number" && val.length > max)
         return {
           valid: false,
-          message: rule.maxMessage || rule.message || `Length must be ≤ ${max}`
+          message: formatMessage(rule.maxMessage || rule.message || "Length must be ≤ {max}", { max })
         };
+      return { valid: true };
+    }
+
+    case "numberRange": {
+      const num = Number(val);
+      if (isNaN(num)) return { valid: false, message: rule.message || "Must be a number" };
+      const { min, max } = rule;
+      if (typeof min === "number" && num < min)
+        return { valid: false, message: formatMessage(rule.minMessage || rule.message || "Must be ≥ {min}", { min }) };
+      if (typeof max === "number" && num > max)
+        return { valid: false, message: formatMessage(rule.maxMessage || rule.message || "Must be ≤ {max}", { max }) };
       return { valid: true };
     }
 
     case "crossField": {
       const otherVal = values?.[rule.field];
-      return String(value ?? "") === String(otherVal ?? "")
+      return val === String(otherVal ?? "")
         ? { valid: true }
         : { valid: false, message: rule.message || "Values must match" };
     }
 
     case "date": {
-      if (!value) return { valid: true };
-      const inputDate = new Date(value);
+      if (!val) return { valid: true };
+      const inputDate = new Date(val);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       if (inputDate >= today) {
-        return {
-          valid: false,
-          message: rule.message || "Date must be before today"
-        };
+        return { valid: false, message: rule.message || "Date must be before today" };
       }
       if (rule.before && inputDate >= new Date(rule.before)) {
         return { valid: false, message: rule.message || `Date must be before ${rule.before}` };
@@ -90,9 +103,9 @@ function applyRule(rule, value, values) {
     }
 
     case "select": {
-      if (!value) return { valid: true }; // let "required" handle emptiness
+      if (!val) return { valid: true }; // let "required" handle emptiness
       const options = rule.options || [];
-      return options.includes(value)
+      return options.includes(val)
         ? { valid: true }
         : { valid: false, message: rule.message || "Invalid selection" };
     }
@@ -103,7 +116,7 @@ function applyRule(rule, value, values) {
         return { valid: false, message: rule.message || `Unknown custom rule: ${rule.custom}` };
       }
       try {
-        const ok = fn(value, values, rule);
+        const ok = await Promise.resolve(fn(val, values, rule));
         return ok ? { valid: true } : { valid: false, message: rule.message || "Invalid value" };
       } catch {
         return { valid: false, message: rule.message || "Custom rule failed" };
@@ -115,18 +128,18 @@ function applyRule(rule, value, values) {
   }
 }
 
-export function validateField(field, value, values = {}) {
+export async function validateField(field, value, values = {}) {
   for (const rule of field.validation || []) {
-    const res = applyRule(rule, value, values);
+    const res = await applyRule(rule, value, values, field);
     if (!res.valid) return res;
   }
   return { valid: true };
 }
 
-export function validateAll(fields = [], values = {}) {
+export async function validateAll(fields = [], values = {}) {
   const errors = {};
   for (const f of fields) {
-    const res = validateField(f, values[f.name], values);
+    const res = await validateField(f, values[f.name], values);
     if (!res.valid) errors[f.name] = res.message;
   }
   return { valid: Object.keys(errors).length === 0, errors };

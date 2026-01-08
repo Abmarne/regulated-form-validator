@@ -263,3 +263,13 @@ export const AlternatePhoneField = {
   allowedChars: /^[0-9]$/,
   messageOnInvalid: "Only digits are allowed in Phone Number"
 };
+
+export const AgeField = {
+  name: "age",
+  label: "Age",
+  type: "number",
+  validation: [
+    { type: "required", message: "Age is required" },
+    { type: "numberRange", min: 18, max: 65, message: "Age must be between {min} and {max}" }
+  ]
+};

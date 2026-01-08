@@ -1,6 +1,6 @@
 {
   "name": "regulated-form-validator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "YAML-driven dynamic form validator and React renderer for regulated domains like BFSI and healthcare.",
   "type": "module",
   "main": "dist/index.cjs",

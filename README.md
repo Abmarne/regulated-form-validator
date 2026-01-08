@@ -1,6 +1,13 @@
 ### 📦 Regulated Form Validator (React)
-YAML-driven, dynamic form validation and rendering for React.  
-Define fields and rules in YAML/JSON, render forms automatically, and enforce compliance-ready validations for BFSI, healthcare, and other regulated domains.
+**Regulated Form Validator** is a **React library for compliance‑ready form validation and rendering**, powered by **YAML/JSON declarative configs**.
+It helps developers build dynamic, auditor‑friendly forms for **BFSI, healthcare, and other regulated domains** without reinventing validation logic.
+- 🛡️ **Compliance‑focused:** Ships with BFSI & healthcare presets (PAN, Aadhaar, IFSC, Insurance IDs, etc.)
+- ⚡ **Developer‑friendly:** Declarative configs, runtime custom rule registry, and reusable preset fields
+- 👀 **Audit‑ready:** Human‑readable configs that make validation logic transparent for compliance reviews
+- 🔄 **Runtime flexibility:** Add, remove, or list custom rules dynamically without redeploying
+- 🧩 **Error‑safe architecture:** Regex, date, and conditional rules handle invalid inputs gracefully
+This project bridges the gap between **developer productivity** and **regulatory compliance**, making it easy to build forms that are both **user‑friendly** and **audit‑ready**.
+
 
 ### ✨ Features
 • 	**Declarative config:** Define fields and rules in YAML/JSON.  
@@ -21,7 +28,7 @@ npm install regulated-form-validator
 The library ships with ready‑to‑use preset fields for daily‑use, BFSI, and healthcare domains.
 Each preset includes strict validations, per‑character filtering (allowedChars), and immediate error feedback (messageOnInvalid).
 
-***⚡ Quick Example: Load Presets in React***
+**⚡ Quick Example: Load Presets in React**
 Here’s how developers can directly use preset fields without writing YAML:
 ```js
 import {
@@ -228,9 +235,10 @@ MIT © 2026 Abhiraj Madan Marne
 
 ### 💡 Roadmap
 • 	✅ Local demo app for testing  
-• 	🚧 Publish to npm registry  
-• 	🚧 Add more domain-specific validation rules  
-• 	🚧 Expand documentation with examples
+• 	✅ Publish to npm registry  
+• 	✅ Add more domain-specific validation rules  
+• 	✅ Expand documentation with examples
+•   🚧 Add Responsive CSS
 
 ### 🤝 Contributing
 Contributions, issues, and feature requests are welcome!

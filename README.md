@@ -8,14 +8,106 @@ Define fields and rules in YAML/JSON, render forms automatically, and enforce co
 • 	**Rich validations:** `required`,`regex`,`length`,`enum`,`number`,`date`,`crossField`,`conditional(when)`,`custom`.  
 • 	**BFSI rules built-in:** PAN, IFSC, Aadhaar.  
 • 	**Auditor-friendly:** Human-readable config files for compliance reviews.   
+•   **Error‑safe:** Regex and date rules handle invalid inputs gracefully.
+•   **Custom registry API:** Add, remove, and list custom rules at runtime.
+
 
 ### 📥 Installation
 ```bash
 npm install regulated-form-validator
 ```
 
-### 📖 Usage
-1. **Define a YAML Config**
+### 📋 Preset Fields
+The library ships with ready‑to‑use preset fields for daily‑use, BFSI, and healthcare domains.
+Each preset includes strict validations, per‑character filtering (allowedChars), and immediate error feedback (messageOnInvalid).
+
+***⚡ Quick Example: Load Presets in React***
+Here’s how developers can directly use preset fields without writing YAML:
+```js
+import {
+  FormRenderer,
+  validateAll,
+  NameField,
+  EmailField,
+  PANField,
+} from "regulated-form-validator";
+
+export default function PresetDemo() {
+  const presetConfig = {
+    fields: [NameField, EmailField, PANField],
+  };
+
+  return (
+    <FormRenderer
+      config={presetConfig}
+      onSubmit={(values) => {
+        const result = validateAll(presetConfig.fields, values);
+        console.log("Validation Result:", result);
+      }}
+    />
+  );
+}
+```
+
+### 🏠 Daily-Use Preset Fields
+
+The library ships with strict daily-use presets for common scenarios:
+
+- **NameField** – required, alphabets only, 2–50 characters  
+- **PincodeField** – required, exactly 6 digits  
+- **EmailField** – required, proper email format  
+- **AddressField** – required, alphanumeric + space/comma/dot/hyphen, 5–100 characters  
+- **PhoneField** – required, exactly 10 digits  
+- **GenderField** – required select (`Male`, `Female`, `Other`)  
+- **PasswordField** – required, strong password (≥8 chars, uppercase, lowercase, number, special char)  
+- **ConfirmPasswordField** – required, must match `PasswordField`  
+- **DobField** – required, valid date, must be before today  
+- **UsernameField** – required, 5–20 chars, alphanumeric + underscore  
+- **OTPField** – required, exactly 6 digits  
+- **AlternateEmailField** – optional, valid email format  
+- **AlternatePhoneField** – optional, valid 10-digit phone number  
+- **AgeField** – required, number between 18 and 65  
+
+Each preset includes:
+- `allowedChars` for per-character filtering  
+- `messageOnInvalid` for immediate feedback  
+- Human-readable error messages for compliance reviews
+
+### 🏦 BFSI Preset Fields
+
+The library ships with strict BFSI presets for compliance‑heavy domains:
+
+- **PANField** – required, 10 characters, format `ABCDE1234F`  
+- **IFSCField** – required, 11 characters, format `SBIN0001234`  
+- **AadhaarField** – required, exactly 12 digits  
+- **GSTField** – required, exactly 15 characters, strict GSTIN format  
+- **AccountNumberField** – required, 9–18 digits  
+- **MICRField** – required, exactly 9 digits  
+
+Each preset includes:
+- Uppercase enforcement where applicable  
+- `allowedChars` for per‑character filtering  
+- `messageOnInvalid` for immediate feedback  
+- Auditor‑friendly error messages
+
+### 🏥 Healthcare Preset Fields
+
+The library ships with strict healthcare presets for patient and medical record management:
+
+- **PatientIDField** – required, exactly 8 characters, uppercase letters + digits  
+- **InsuranceField** – required, 2 uppercase letters + 6 digits (e.g., AB123456)  
+- **HealthIDField** – required, 10–16 characters, uppercase letters + digits  
+- **BloodGroupField** – required select, options: `A+`, `A-`, `B+`, `B-`, `O+`, `O-`, `AB+`, `AB-`  
+- **MedicalRecordField** – required, 6–12 digits  
+
+Each preset includes:
+- Uppercase enforcement where applicable  
+- `allowedChars` for per‑character filtering  
+- `messageOnInvalid` for immediate feedback  
+- Auditor‑friendly error messages
+
+### 📖 Yaml Usage
+1. **Define a YAML Config for Customization**
 ```Yaml
 fields:
   - name: fullName
@@ -62,58 +154,6 @@ export default function App() {
   );
 }
 ```
-
-## 📋 Preset Fields
-
-The library ships with **ready-to-use preset fields** for common daily-use scenarios as well as BFSI and healthcare domains. Each preset includes strict validations, per-character filtering (`allowedChars`), and immediate error feedback (`messageOnInvalid`).
-
-### Daily-Use Fields
-- **NameField**
-  - Type: `text`
-  - Validations: required, alphabets only, 2–50 characters
-  - allowedChars: `/^[A-Za-z\s]$/`
-  - messageOnInvalid: "Only alphabets and spaces are allowed"
-
-- **EmailField**
-  - Type: `email`
-  - Validations: required, proper email format
-  - allowedChars: `/^[A-Za-z0-9._%+-@]$/`
-  - messageOnInvalid: "Only letters, numbers, and email special characters are allowed"
-
-- **PincodeField**
-  - Type: `text`
-  - Validations: required, exactly 6 digits
-  - allowedChars: `/^[0-9]$/`
-  - messageOnInvalid: "Only digits are allowed in PIN Code"
-
-- **PhoneField**
-  - Type: `tel`
-  - Validations: required, exactly 10 digits
-  - allowedChars: `/^[0-9]$/`
-  - messageOnInvalid: "Only digits are allowed in Phone Number"
-
-- **AddressField**
-  - Type: `text`
-  - Validations: required, alphanumeric + space/comma/dot/hyphen, 5–100 characters
-  - allowedChars: `/^[A-Za-z0-9\s,.-]$/`
-  - messageOnInvalid: "Only letters, numbers, spaces, commas, dots, and hyphens are allowed"
-
-- **GenderField**
-  - Type: `select`
-  - Validations: required
-  - Options: `Male`, `Female`, `Other`
-
-- **PasswordField**
-  - Type: `password`
-  - Validations: required, min 8 chars, must include uppercase, lowercase, number, special character
-  - allowedChars: `/^[A-Za-z0-9@$!%*?&]$/`
-  - messageOnInvalid: "Only letters, numbers, and @$!%*?& characters are allowed"
-
-- **ConfirmPasswordField**
-  - Type: `password`
-  - Validations: required, must match `PasswordField`
-  - allowedChars: `/^[A-Za-z0-9@$!%*?&]$/`
-  - messageOnInvalid: "Only letters, numbers, and @$!%*?& characters are allowed"
 
 ### 🔧 Customization
 You can customize fields in several ways:
@@ -179,6 +219,9 @@ Tests are located in the  directory and cover:
 • 	Built-in BFSI validations (PAN, IFSC, Aadhaar)  
 • 	Conditional and cross-field rules  
 • 	Custom validation hooks
+•   Error handling for invalid regex/date inputs
+•   Runtime registry API (addCustom, removeCustom, listCustom)
+
 
 ### 📜 License
 MIT © 2026 Abhiraj Madan Marne

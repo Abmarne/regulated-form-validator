@@ -6,22 +6,22 @@
 const registry = Object.create(null);
 
 // Built-in safe examples
-registry.mustContainXYZ = (value) => String(value ?? "").includes("XYZ");
 registry.isEven = (value) => {
-  const n = Number(value);
-  if (Number.isNaN(n)) return false;
-  return n % 2 === 0;
+  const n = Number(String(value ?? "").trim());
+  return !Number.isNaN(n) && n % 2 === 0;
 };
+
+registry.mustContainXYZ = (value) =>
+  String(value ?? "").toUpperCase().includes("XYZ");
+
 registry.afterDate = (value, _values, rule) => {
-  // rule.extra.after: "YYYY-MM-DD"
   if (!rule?.extra?.after) return false;
   const v = new Date(value);
   const a = new Date(rule.extra.after);
   return !Number.isNaN(v.getTime()) && v > a;
 };
+
 registry.matchesRegex = (value, _values, rule) => {
-  // rule.extra.pattern: string
-  // rule.extra.flags: optional flags
   const pattern = rule?.extra?.pattern;
   if (!pattern) return false;
   const flags = rule?.extra?.flags ?? "";
@@ -30,8 +30,10 @@ registry.matchesRegex = (value, _values, rule) => {
 
 // Public API
 export function addCustom(name, fn) {
-  if (typeof name !== "string" || !name) throw new Error("Custom rule name must be a non-empty string");
-  if (typeof fn !== "function") throw new Error("Custom rule must be a function");
+  if (typeof name !== "string" || !name)
+    throw new Error("Custom rule name must be a non-empty string");
+  if (typeof fn !== "function")
+    throw new Error("Custom rule must be a function");
   registry[name] = fn;
 }
 

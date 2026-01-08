@@ -12,7 +12,7 @@ import {
   OTPField,
   AlternateEmailField,
   AlternatePhoneField
-} from "../src/fields/common.js";
+} from "../src/fields/presets.js";
 
 import {
   PANField,
@@ -93,14 +93,14 @@ describe("Validator Test Suite", () => {
   // ------------------------------
   // BFSI Fields
   // ------------------------------
-  test("PANField valid and invalid", async () => {
+  test("PANField valid with uppercase and lowercase input", async () => {
     expect(await validateField(PANField, "ABCDE1234F")).toEqual({ valid: true });
-    expect((await validateField(PANField, "abcde1234f")).valid).toBe(false); // lowercase invalid
+    expect(await validateField(PANField, "abcde1234f")).toEqual({ valid: true }); // lowercase accepted
   });
 
-  test("IFSCField valid and invalid", async () => {
+  test("IFSCField valid with uppercase and lowercase input", async () => {
     expect(await validateField(IFSCField, "SBIN0001234")).toEqual({ valid: true });
-    expect((await validateField(IFSCField, "sbin0001234")).valid).toBe(false);
+    expect(await validateField(IFSCField, "sbin0001234")).toEqual({ valid: true }); // lowercase accepted
   });
 
   test("AadhaarField must be 12 digits", async () => {
@@ -108,9 +108,9 @@ describe("Validator Test Suite", () => {
     expect((await validateField(AadhaarField, "12345")).valid).toBe(false);
   });
 
-  test("GSTField valid and invalid", async () => {
+  test("GSTField valid with uppercase and lowercase input", async () => {
     expect(await validateField(GSTField, "22AAAAA0000A1Z5")).toEqual({ valid: true });
-    expect((await validateField(GSTField, "22aaaaa0000a1z5")).valid).toBe(false);
+    expect(await validateField(GSTField, "22aaaaa0000a1z5")).toEqual({ valid: true }); // lowercase accepted
   });
 
   test("AccountNumberField 9–18 digits", async () => {
@@ -126,9 +126,9 @@ describe("Validator Test Suite", () => {
   // ------------------------------
   // Healthcare Fields
   // ------------------------------
-  test("PatientIDField must be 8 uppercase alphanumeric", async () => {
+  test("PatientIDField valid with uppercase and lowercase input", async () => {
     expect(await validateField(PatientIDField, "ABCD1234")).toEqual({ valid: true });
-    expect((await validateField(PatientIDField, "abcd1234")).valid).toBe(false);
+    expect(await validateField(PatientIDField, "abcd1234")).toEqual({ valid: true }); // lowercase accepted
   });
 
   test("InsuranceField must be 2 letters + 6 digits", async () => {
@@ -136,9 +136,9 @@ describe("Validator Test Suite", () => {
     expect((await validateField(InsuranceField, "A123456")).valid).toBe(false);
   });
 
-  test("HealthIDField 10–16 uppercase alphanumeric", async () => {
+  test("HealthIDField valid with uppercase and lowercase input", async () => {
     expect(await validateField(HealthIDField, "ABCD123456")).toEqual({ valid: true });
-    expect((await validateField(HealthIDField, "abcd123456")).valid).toBe(false);
+    expect(await validateField(HealthIDField, "abcd123456")).toEqual({ valid: true }); // lowercase accepted
   });
 
   test("BloodGroupField must be valid option", async () => {

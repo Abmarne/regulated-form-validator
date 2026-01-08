@@ -1,8 +1,6 @@
-import { getCustom } from "./fields/customRegistry.js";
+import { getCustom } from "./customRegistry.js";
 
-/**
- * Replace placeholders in messages with actual values
- */
+/** Replace placeholders in messages with actual values */
 function formatMessage(template, values = {}) {
   if (!template) return "";
   return template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
@@ -38,42 +36,68 @@ async function applyRule(rule, value, values, field) {
     }
 
     case "regex": {
-      const flags = rule.flags || "";
-      const pattern = rule.pattern || rule.regex;
-      const re = new RegExp(pattern, flags);
-      return re.test(val)
-        ? { valid: true }
-        : { valid: false, message: rule.message || "Invalid format" };
-    }
+  const flags = rule.flags || "";
+  const pattern = rule.pattern || rule.regex;
+  try {
+    const re = new RegExp(pattern, flags);
+    return re.test(val)
+      ? { valid: true }
+      : { valid: false, message: rule.message || "Invalid format" };
+  } catch {
+    return { valid: false, message: rule.message || "Invalid regex pattern" };
+  }
+}
 
     case "length": {
       const { min, max, eq } = rule;
       if (typeof eq === "number" && val.length !== eq)
         return {
           valid: false,
-          message: formatMessage(rule.eqMessage || rule.message || "Length must be {eq}", { eq })
+          message: formatMessage(
+            rule.eqMessage || rule.message || "Length must be {eq}",
+            { eq }
+          ),
         };
       if (typeof min === "number" && val.length < min)
         return {
           valid: false,
-          message: formatMessage(rule.minMessage || rule.message || "Length must be ≥ {min}", { min })
+          message: formatMessage(
+            rule.minMessage || rule.message || "Length must be ≥ {min}",
+            { min }
+          ),
         };
       if (typeof max === "number" && val.length > max)
         return {
           valid: false,
-          message: formatMessage(rule.maxMessage || rule.message || "Length must be ≤ {max}", { max })
+          message: formatMessage(
+            rule.maxMessage || rule.message || "Length must be ≤ {max}",
+            { max }
+          ),
         };
       return { valid: true };
     }
 
     case "numberRange": {
       const num = Number(val);
-      if (isNaN(num)) return { valid: false, message: rule.message || "Must be a number" };
+      if (isNaN(num))
+        return { valid: false, message: rule.message || "Must be a number" };
       const { min, max } = rule;
       if (typeof min === "number" && num < min)
-        return { valid: false, message: formatMessage(rule.minMessage || rule.message || "Must be ≥ {min}", { min }) };
+        return {
+          valid: false,
+          message: formatMessage(
+            rule.minMessage || rule.message || "Must be ≥ {min}",
+            { min }
+          ),
+        };
       if (typeof max === "number" && num > max)
-        return { valid: false, message: formatMessage(rule.maxMessage || rule.message || "Must be ≤ {max}", { max }) };
+        return {
+          valid: false,
+          message: formatMessage(
+            rule.maxMessage || rule.message || "Must be ≤ {max}",
+            { max }
+          ),
+        };
       return { valid: true };
     }
 
@@ -85,25 +109,28 @@ async function applyRule(rule, value, values, field) {
     }
 
     case "date": {
-      if (!val) return { valid: true };
-      const inputDate = new Date(val);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+  if (!val) return { valid: true };
+  const inputDate = new Date(val);
+  if (Number.isNaN(inputDate.getTime())) {
+    return { valid: false, message: rule.message || "Invalid date" };
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-      if (inputDate >= today) {
-        return { valid: false, message: rule.message || "Date must be before today" };
-      }
-      if (rule.before && inputDate >= new Date(rule.before)) {
-        return { valid: false, message: rule.message || `Date must be before ${rule.before}` };
-      }
-      if (rule.after && inputDate <= new Date(rule.after)) {
-        return { valid: false, message: rule.message || `Date must be after ${rule.after}` };
-      }
-      return { valid: true };
-    }
+  if (inputDate >= today) {
+    return { valid: false, message: rule.message || "Date must be before today" };
+  }
+  if (rule.before && inputDate >= new Date(rule.before)) {
+    return { valid: false, message: rule.message || `Date must be before ${rule.before}` };
+  }
+  if (rule.after && inputDate <= new Date(rule.after)) {
+    return { valid: false, message: rule.message || `Date must be after ${rule.after}` };
+  }
+  return { valid: true };
+}
 
     case "select": {
-      if (!val) return { valid: true }; // let "required" handle emptiness
+      if (!val) return { valid: true };
       const options = rule.options || [];
       return options.includes(val)
         ? { valid: true }
@@ -113,11 +140,16 @@ async function applyRule(rule, value, values, field) {
     case "custom": {
       const fn = getCustom(rule.custom);
       if (typeof fn !== "function") {
-        return { valid: false, message: rule.message || `Unknown custom rule: ${rule.custom}` };
+        return {
+          valid: false,
+          message: rule.message || `Unknown custom rule: ${rule.custom}`,
+        };
       }
       try {
         const ok = await Promise.resolve(fn(val, values, rule));
-        return ok ? { valid: true } : { valid: false, message: rule.message || "Invalid value" };
+        return ok
+          ? { valid: true }
+          : { valid: false, message: rule.message || "Invalid value" };
       } catch {
         return { valid: false, message: rule.message || "Custom rule failed" };
       }

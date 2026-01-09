@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { validateAll, validateField } from "./validator.js";
+import "./FormRenderer.css";
 
 export default function FormRenderer({ config, onSubmit }) {
   const [values, setValues] = useState({});
@@ -9,10 +10,9 @@ export default function FormRenderer({ config, onSubmit }) {
     return <div>No fields configured</div>;
   }
 
-const handleChange = (e, field) => {
+const handleChange = async (e, field) => {
   const rawVal = e.target.value;
   let val = rawVal;
-
   let invalidCharUsed = false;
 
   // Strict filtering using allowedChars
@@ -23,7 +23,7 @@ const handleChange = (e, field) => {
       .join("");
 
     if (filtered !== rawVal) {
-      invalidCharUsed = true; // 👈 flag invalid character
+      invalidCharUsed = true;
       val = filtered;
     } else {
       val = rawVal;
@@ -33,8 +33,8 @@ const handleChange = (e, field) => {
   const newValues = { ...values, [field.name]: val };
   setValues(newValues);
 
-  // Run normal validation
-  const res = validateField(field, val, newValues);
+  // Run normal validation (await!)
+  const res = await validateField(field, val, newValues);
 
   // Decide which error to show
   setErrors({
@@ -43,18 +43,18 @@ const handleChange = (e, field) => {
       ? field.messageOnInvalid || "Invalid character entered"
       : res.valid
       ? null
-      : res.message
+      : res.message,
   });
 };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const result = validateAll(config.fields, values);
-    setErrors(result.errors);
-    if (result.valid) {
-      onSubmit(values);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const result = await validateAll(config.fields, values); // await!
+  setErrors(result.errors);
+  if (result.valid) {
+    onSubmit(values);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit}>

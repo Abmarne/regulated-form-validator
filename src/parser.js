@@ -10,6 +10,10 @@ export function parseConfig(configInput) {
   try {
     return yaml.load(str);
   } catch (err) {
-    throw new Error("Invalid YAML/JSON config: " + err.message);
+    try {
+      return JSON.parse(str);
+    } catch {
+      throw new Error("Invalid YAML/JSON config: " + err.message);
+    }
   }
 }

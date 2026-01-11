@@ -1,31 +1,35 @@
-// Secure registry of custom validation functions.
-// - Keys are strings used in config: { type: "custom", custom: "mustContainXYZ" }
-// - Values are pure functions: (value, values, rule) => boolean
-// - Exposes add/remove/get to manage functions safely at runtime.
+// src/fields/customRegistry.js
 
 const registry = Object.create(null);
 
-// Built-in safe examples
+// Built-in custom rules
 registry.isEven = (value) => {
-  const n = Number(String(value ?? "").trim());
+  const n = Number(value);
   return !Number.isNaN(n) && n % 2 === 0;
 };
 
-registry.mustContainXYZ = (value) =>
-  String(value ?? "").toUpperCase().includes("XYZ");
+registry.mustContainXYZ = (value) => {
+  return String(value ?? "").includes("XYZ");
+};
 
 registry.afterDate = (value, _values, rule) => {
-  if (!rule?.extra?.after) return false;
+  const after = rule?.extra?.after;
+  if (!after) return false;
   const v = new Date(value);
-  const a = new Date(rule.extra.after);
+  const a = new Date(after);
   return !Number.isNaN(v.getTime()) && v > a;
 };
 
 registry.matchesRegex = (value, _values, rule) => {
-  const pattern = rule?.extra?.pattern;
-  if (!pattern) return false;
-  const flags = rule?.extra?.flags ?? "";
-  return new RegExp(pattern, flags).test(String(value ?? ""));
+  try {
+    const pattern = rule?.extra?.pattern;
+    if (!pattern) return false;
+    const flags = rule?.extra?.flags || "";
+    const re = new RegExp(pattern, flags);
+    return re.test(String(value ?? ""));
+  } catch {
+    return false;
+  }
 };
 
 // Public API

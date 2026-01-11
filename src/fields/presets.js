@@ -176,7 +176,11 @@ export const DobField = {
   type: "date",
   validation: [
     { type: "required", message: "Date of Birth is required" },
-    { type: "date", message: "Date of Birth must be before today" }
+    { 
+      type: "date", 
+      mustBePast: true,   // 👈 explicitly enforce past-only dates
+      message: "Date of Birth must be before today" 
+    }
   ],
   // Prevent selecting today/future in date picker
   max: new Date(Date.now() - 86400000).toISOString().split("T")[0]

@@ -1,16 +1,14 @@
+// validator.js
+import { getRule } from "./ruleRegistry.js";
 import { getCustom } from "./customRegistry.js";
 
-/** Replace placeholders in messages with actual values */
-function formatMessage(template, values = {}) {
-  if (!template) return "";
-  return template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
-}
-
+/**
+ * Conditional check for rule execution
+ */
 function checkCondition(rule, values) {
   if (!rule.when) return true;
   const { field, equals, notEmpty, notEquals, in: inList, notIn } = rule.when;
   const val = values?.[field];
-
   if (equals !== undefined) return val === equals;
   if (notEquals !== undefined) return val !== notEquals;
   if (notEmpty) return val != null && String(val).trim() !== "";
@@ -19,160 +17,69 @@ function checkCondition(rule, values) {
   return true;
 }
 
-async function applyRule(rule, value, values, field) {
-  if (!checkCondition(rule, values)) return { valid: true };
-
-  // Normalize value
+/**
+ * Normalize value before validation
+ */
+function normalizeValue(value, field, rule) {
   let val = String(value ?? "").trim();
   if (field?.type === "email") val = val.toLowerCase();
   if (rule.uppercase) val = val.toUpperCase();
+  return val;
+}
 
-  switch (rule.type) {
-    case "required": {
-      const empty = val === "";
-      return empty
-        ? { valid: false, message: rule.message || "This field is required" }
-        : { valid: true };
-    }
+/**
+ * Apply a single rule to a value
+ */
+export async function applyRule(rule, value, values, field) {
+  if (!checkCondition(rule, values)) return { valid: true };
 
-    case "regex": {
-  const flags = rule.flags || "";
-  const pattern = rule.pattern || rule.regex;
+  const val = normalizeValue(value, field, rule);
+const handler = getRule(rule.type);
+
+// Handle custom rules separately
+if (rule.type === "custom") {
+  const fn = getCustom(rule.custom);
+  if (typeof fn !== "function") {
+    return { valid: false, message: rule.message || `Unknown custom rule: ${rule.custom}` };
+  }
   try {
-    const re = new RegExp(pattern, flags);
-    return re.test(val)
-      ? { valid: true }
-      : { valid: false, message: rule.message || "Invalid format" };
+    const ok = await Promise.resolve(fn(value, values, rule)); // 👈 use raw value here
+    return ok ? { valid: true } : { valid: false, message: rule.message || "Invalid value" };
   } catch {
-    return { valid: false, message: rule.message || "Invalid regex pattern" };
+    return { valid: false, message: rule.message || "Custom rule failed" };
   }
 }
 
-    case "length": {
-      const { min, max, eq } = rule;
-      if (typeof eq === "number" && val.length !== eq)
-        return {
-          valid: false,
-          message: formatMessage(
-            rule.eqMessage || rule.message || "Length must be {eq}",
-            { eq }
-          ),
-        };
-      if (typeof min === "number" && val.length < min)
-        return {
-          valid: false,
-          message: formatMessage(
-            rule.minMessage || rule.message || "Length must be ≥ {min}",
-            { min }
-          ),
-        };
-      if (typeof max === "number" && val.length > max)
-        return {
-          valid: false,
-          message: formatMessage(
-            rule.maxMessage || rule.message || "Length must be ≤ {max}",
-            { max }
-          ),
-        };
-      return { valid: true };
-    }
+  // If no handler registered, treat as valid
+  if (!handler) return { valid: true };
 
-    case "numberRange": {
-      const num = Number(val);
-      if (isNaN(num))
-        return { valid: false, message: rule.message || "Must be a number" };
-      const { min, max } = rule;
-      if (typeof min === "number" && num < min)
-        return {
-          valid: false,
-          message: formatMessage(
-            rule.minMessage || rule.message || "Must be ≥ {min}",
-            { min }
-          ),
-        };
-      if (typeof max === "number" && num > max)
-        return {
-          valid: false,
-          message: formatMessage(
-            rule.maxMessage || rule.message || "Must be ≤ {max}",
-            { max }
-          ),
-        };
-      return { valid: true };
-    }
-
-    case "crossField": {
-      const otherVal = values?.[rule.field];
-      return val === String(otherVal ?? "")
-        ? { valid: true }
-        : { valid: false, message: rule.message || "Values must match" };
-    }
-
-    case "date": {
-  if (!val) return { valid: true };
-  const inputDate = new Date(val);
-  if (Number.isNaN(inputDate.getTime())) {
-    return { valid: false, message: rule.message || "Invalid date" };
-  }
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  if (inputDate >= today) {
-    return { valid: false, message: rule.message || "Date must be before today" };
-  }
-  if (rule.before && inputDate >= new Date(rule.before)) {
-    return { valid: false, message: rule.message || `Date must be before ${rule.before}` };
-  }
-  if (rule.after && inputDate <= new Date(rule.after)) {
-    return { valid: false, message: rule.message || `Date must be after ${rule.after}` };
-  }
-  return { valid: true };
+  // Delegate to the registered handler
+  return handler(rule, val, values, field);
 }
 
-    case "select": {
-      if (!val) return { valid: true };
-      const options = rule.options || [];
-      return options.includes(val)
-        ? { valid: true }
-        : { valid: false, message: rule.message || "Invalid selection" };
-    }
-
-    case "custom": {
-      const fn = getCustom(rule.custom);
-      if (typeof fn !== "function") {
-        return {
-          valid: false,
-          message: rule.message || `Unknown custom rule: ${rule.custom}`,
-        };
-      }
-      try {
-        const ok = await Promise.resolve(fn(val, values, rule));
-        return ok
-          ? { valid: true }
-          : { valid: false, message: rule.message || "Invalid value" };
-      } catch {
-        return { valid: false, message: rule.message || "Custom rule failed" };
-      }
-    }
-
-    default:
-      return { valid: true };
-  }
-}
-
+/**
+ * Validate a single field
+ */
 export async function validateField(field, value, values = {}) {
   for (const rule of field.validation || []) {
     const res = await applyRule(rule, value, values, field);
-    if (!res.valid) return res;
+    if (!res.valid) return res; // short-circuit on first failure
   }
   return { valid: true };
 }
 
+/**
+ * Validate all fields in parallel
+ */
 export async function validateAll(fields = [], values = {}) {
+  const results = await Promise.all(
+    fields.map(f => validateField(f, values[f.name], values))
+  );
+
   const errors = {};
-  for (const f of fields) {
-    const res = await validateField(f, values[f.name], values);
-    if (!res.valid) errors[f.name] = res.message;
-  }
+  fields.forEach((f, i) => {
+    if (!results[i].valid) errors[f.name] = results[i].message;
+  });
+
   return { valid: Object.keys(errors).length === 0, errors };
 }

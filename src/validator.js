@@ -1,4 +1,4 @@
-// validator.js
+
 import { getRule } from "./ruleRegistry.js";
 import { getCustom } from "./customRegistry.js";
 
@@ -28,41 +28,58 @@ function normalizeValue(value, field, rule) {
 }
 
 /**
+ * Localize error messages (i18n support)
+ */
+function localizeMessage(rule, key = "message", locale = "en") {
+  if (typeof rule[key] === "string") return rule[key];
+  if (typeof rule[key] === "object") return rule[key][locale] || rule[key].en;
+  return undefined;
+}
+
+/**
  * Apply a single rule to a value
  */
-export async function applyRule(rule, value, values, field) {
+export async function applyRule(rule, value, values, field, locale = "en") {
   if (!checkCondition(rule, values)) return { valid: true };
 
   const val = normalizeValue(value, field, rule);
-const handler = getRule(rule.type);
+  const handler = getRule(rule.type);
 
-// Handle custom rules separately
-if (rule.type === "custom") {
-  const fn = getCustom(rule.custom);
-  if (typeof fn !== "function") {
-    return { valid: false, message: rule.message || `Unknown custom rule: ${rule.custom}` };
+  // Handle custom rules separately
+  if (rule.type === "custom") {
+    const fn = getCustom(rule.custom);
+    if (typeof fn !== "function") {
+      return {
+        valid: false,
+        message: localizeMessage(rule, "message", locale) || `Unknown custom rule: ${rule.custom}`,
+      };
+    }
+    try {
+      // Pass raw value to custom rules to preserve case/numeric integrity
+      const ok = await Promise.resolve(fn(value, values, rule));
+      return ok
+        ? { valid: true }
+        : { valid: false, message: localizeMessage(rule, "message", locale) || "Invalid value" };
+    } catch {
+      return { valid: false, message: localizeMessage(rule, "message", locale) || "Custom rule failed" };
+    }
   }
-  try {
-    const ok = await Promise.resolve(fn(value, values, rule)); // 👈 use raw value here
-    return ok ? { valid: true } : { valid: false, message: rule.message || "Invalid value" };
-  } catch {
-    return { valid: false, message: rule.message || "Custom rule failed" };
-  }
-}
 
   // If no handler registered, treat as valid
   if (!handler) return { valid: true };
 
   // Delegate to the registered handler
-  return handler(rule, val, values, field);
+  const res = await handler(rule, val, values, field);
+  if (!res.valid) res.message = localizeMessage(rule, "message", locale) || res.message;
+  return res;
 }
 
 /**
  * Validate a single field
  */
-export async function validateField(field, value, values = {}) {
+export async function validateField(field, value, values = {}, locale = "en") {
   for (const rule of field.validation || []) {
-    const res = await applyRule(rule, value, values, field);
+    const res = await applyRule(rule, value, values, field, locale);
     if (!res.valid) return res; // short-circuit on first failure
   }
   return { valid: true };
@@ -71,9 +88,9 @@ export async function validateField(field, value, values = {}) {
 /**
  * Validate all fields in parallel
  */
-export async function validateAll(fields = [], values = {}) {
+export async function validateAll(fields = [], values = {}, locale = "en") {
   const results = await Promise.all(
-    fields.map(f => validateField(f, values[f.name], values))
+    fields.map((f) => validateField(f, values[f.name], values, locale))
   );
 
   const errors = {};

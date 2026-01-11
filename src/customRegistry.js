@@ -1,5 +1,4 @@
-// src/fields/customRegistry.js
-
+// customRegistry.js
 const registry = Object.create(null);
 
 // Built-in custom rules
@@ -30,6 +29,15 @@ registry.matchesRegex = (value, _values, rule) => {
   } catch {
     return false;
   }
+};
+
+// Async example: check username availability
+registry.usernameAvailable = async (value, _values, rule) => {
+  const endpoint = rule?.extra?.endpoint;
+  if (!endpoint) return false;
+  const res = await fetch(`${endpoint}?username=${encodeURIComponent(value)}`);
+  const data = await res.json();
+  return data.available;
 };
 
 // Public API

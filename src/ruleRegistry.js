@@ -1,5 +1,5 @@
 // ruleRegistry.js
-import { getCustom } from "./fields/customRegistry.js";
+import { getCustom } from "./customRegistry.js";
 
 const ruleRegistry = {};
 
@@ -17,7 +17,7 @@ export function getRule(type) {
  * Built-in Rule Handlers
  * =========================== */
 
-// Required field
+// Required
 registerRule("required", async (rule, val) => {
   const empty = val === "";
   return empty
@@ -25,10 +25,10 @@ registerRule("required", async (rule, val) => {
     : { valid: true };
 });
 
-// Regex pattern
+// Regex
 registerRule("regex", async (rule, val) => {
   try {
-    const re = new RegExp(rule.pattern || rule.regex, rule.flags || "");
+    const re = new RegExp(rule.pattern || rule.extra?.pattern, rule.flags || rule.extra?.flags || "");
     return re.test(val)
       ? { valid: true }
       : { valid: false, message: rule.message || "Invalid format" };
@@ -37,7 +37,7 @@ registerRule("regex", async (rule, val) => {
   }
 });
 
-// Length checks
+// Length
 registerRule("length", async (rule, val) => {
   const { min, max, eq } = rule;
   if (typeof eq === "number" && val.length !== eq)
@@ -49,7 +49,7 @@ registerRule("length", async (rule, val) => {
   return { valid: true };
 });
 
-// Numeric range
+// Number range
 registerRule("numberRange", async (rule, val) => {
   const num = Number(val);
   if (isNaN(num)) return { valid: false, message: rule.message || "Must be a number" };
@@ -61,15 +61,16 @@ registerRule("numberRange", async (rule, val) => {
   return { valid: true };
 });
 
-// Cross-field equality
+// Match another field's value
 registerRule("crossField", async (rule, val, values) => {
   const otherVal = values?.[rule.field];
-  return val === String(otherVal ?? "")
-    ? { valid: true }
-    : { valid: false, message: rule.message || "Values must match" };
+  if (val !== otherVal) {
+    return { valid: false, message: rule.message || `Must match ${rule.field}` };
+  }
+  return { valid: true };
 });
 
-// Date checks
+// Date rules
 registerRule("date", async (rule, val) => {
   if (!val) return { valid: true };
   const inputDate = new Date(val);
@@ -79,14 +80,17 @@ registerRule("date", async (rule, val) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  if (rule.mustBePast && inputDate >= today) {
+    return { valid: false, message: rule.message || "Date must be before today" };
+  }
+  if (rule.mustBeFuture && inputDate <= today) {
+    return { valid: false, message: rule.message || "Date must be after today" };
+  }
   if (rule.before && inputDate >= new Date(rule.before)) {
     return { valid: false, message: rule.message || `Date must be before ${rule.before}` };
   }
   if (rule.after && inputDate <= new Date(rule.after)) {
     return { valid: false, message: rule.message || `Date must be after ${rule.after}` };
-  }
-  if (rule.mustBePast && inputDate >= today) {
-    return { valid: false, message: rule.message || "Date must be before today" };
   }
   return { valid: true };
 });
@@ -100,7 +104,7 @@ registerRule("select", async (rule, val) => {
     : { valid: false, message: rule.message || "Invalid selection" };
 });
 
-// Custom rule (delegates to customRegistry)
+// Custom rule
 registerRule("custom", async (rule, val, values) => {
   const fn = getCustom(rule.custom);
   if (typeof fn !== "function") {

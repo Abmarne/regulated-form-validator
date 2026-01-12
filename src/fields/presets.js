@@ -1,5 +1,5 @@
 // ===============================
-// Common Daily-use Fields with Strict Validations
+// Common Daily-use Fields with Enhanced Validations
 // ===============================
 
 // 1. NameField → only alphabets, required
@@ -8,23 +8,25 @@ export const NameField = {
   label: "Full Name",
   type: "text",
   validation: [
-    { type: "required", message: "Name is required" },
+    { type: "required", severity: "error", message: { en: "Name is required" } },
     {
       type: "regex",
+      severity: "error",
       pattern: "^[A-Za-z\\s]+$",
-      message: "Name can only contain alphabets and spaces"
+      message: { en: "Name can only contain alphabets and spaces" }
     },
     {
       type: "length",
+      severity: "warning",
       min: 2,
       max: 50,
-      minMessage: "Name must be at least 2 characters",
-      maxMessage: "Name must be at most 50 characters"
+      minMessage: { en: "Name must be at least 2 characters" },
+      maxMessage: { en: "Name must be at most 50 characters" }
     }
   ],
   max: 50,
   allowedChars: /^[A-Za-z\s]$/,
-  messageOnInvalid: "Only alphabets and spaces are allowed"
+  messageOnInvalid: { en: "Only alphabets and spaces are allowed" }
 };
 
 // 2. PincodeField → only numbers, required
@@ -33,21 +35,23 @@ export const PincodeField = {
   label: "PIN Code",
   type: "text",
   validation: [
-    { type: "required", message: "PIN Code is required" },
+    { type: "required", severity: "error", message: { en: "PIN Code is required" } },
     {
       type: "regex",
+      severity: "error",
       pattern: "^\\d{6}$",
-      message: "PIN Code must be exactly 6 digits (numbers only)"
+      message: { en: "PIN Code must be exactly 6 digits (numbers only)" }
     },
     {
       type: "length",
+      severity: "error",
       eq: 6,
-      eqMessage: "PIN Code must be exactly 6 digits"
+      eqMessage: { en: "PIN Code must be exactly 6 digits" }
     }
   ],
   max: 6,
   allowedChars: /^[0-9]$/,
-  messageOnInvalid: "Only digits are allowed in PIN Code"
+  messageOnInvalid: { en: "Only digits are allowed in PIN Code" }
 };
 
 // 3. EmailField → alphanumeric + special chars, required
@@ -56,15 +60,16 @@ export const EmailField = {
   label: "Email Address",
   type: "email",
   validation: [
-    { type: "required", message: "Email is required" },
+    { type: "required", severity: "error", message: { en: "Email is required" } },
     {
       type: "regex",
+      severity: "error",
       pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
-      message: "Invalid email address format"
+      message: { en: "Invalid email address format" }
     }
   ],
   allowedChars: /^[A-Za-z0-9._%+-@]$/,
-  messageOnInvalid: "Only letters, numbers, and email special characters are allowed"
+  messageOnInvalid: { en: "Only letters, numbers, and email special characters are allowed" }
 };
 
 // 4. AddressField → alphanumeric, required
@@ -73,23 +78,25 @@ export const AddressField = {
   label: "Address",
   type: "text",
   validation: [
-    { type: "required", message: "Address is required" },
+    { type: "required", severity: "error", message: { en: "Address is required" } },
     {
       type: "regex",
+      severity: "error",
       pattern: "^[A-Za-z0-9\\s,.-]{5,100}$",
-      message: "Address must be 5–100 characters, alphanumeric only"
+      message: { en: "Address must be 5–100 characters, alphanumeric only" }
     },
     {
       type: "length",
+      severity: "warning",
       min: 5,
       max: 100,
-      minMessage: "Address must be at least 5 characters",
-      maxMessage: "Address must be at most 100 characters"
+      minMessage: { en: "Address must be at least 5 characters" },
+      maxMessage: { en: "Address must be at most 100 characters" }
     }
   ],
   max: 100,
   allowedChars: /^[A-Za-z0-9\s,.-]$/,
-  messageOnInvalid: "Only letters, numbers, spaces, commas, dots, and hyphens are allowed"
+  messageOnInvalid: { en: "Only letters, numbers, spaces, commas, dots, and hyphens are allowed" }
 };
 
 // 5. PhoneField → only digits, required
@@ -98,21 +105,23 @@ export const PhoneField = {
   label: "Phone Number",
   type: "tel",
   validation: [
-    { type: "required", message: "Phone number is required" },
+    { type: "required", severity: "error", message: { en: "Phone number is required" } },
     {
       type: "regex",
+      severity: "error",
       pattern: "^\\d{10}$",
-      message: "Phone number must be exactly 10 digits"
+      message: { en: "Phone number must be exactly 10 digits" }
     },
     {
       type: "length",
+      severity: "error",
       eq: 10,
-      eqMessage: "Phone number must be exactly 10 digits"
+      eqMessage: { en: "Phone number must be exactly 10 digits" }
     }
   ],
   max: 10,
   allowedChars: /^[0-9]$/,
-  messageOnInvalid: "Only digits are allowed in Phone Number"
+  messageOnInvalid: { en: "Only digits are allowed in Phone Number" }
 };
 
 // 6. GenderField → required select
@@ -122,8 +131,8 @@ export const GenderField = {
   type: "select",
   options: ["Male", "Female", "Other"],
   validation: [
-    { type: "required", message: "Gender is required" },
-    { type: "select", options: ["Male", "Female", "Other"], message: "Invalid Gender selection" }
+    { type: "required", severity: "error", message: { en: "Gender is required" } },
+    { type: "select", severity: "error", options: ["Male", "Female", "Other"], message: { en: "Invalid Gender selection" } }
   ]
 };
 
@@ -133,23 +142,23 @@ export const PasswordField = {
   label: "Password",
   type: "password",
   validation: [
-    { type: "required", message: "Password is required" },
+    { type: "required", severity: "error", message: { en: "Password is required" } },
     {
       type: "regex",
-      pattern:
-        "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
-      message:
-        "Password must be at least 8 characters, include uppercase, lowercase, number, and special character"
+      severity: "error",
+      pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+      message: { en: "Password must be at least 8 characters, include uppercase, lowercase, number, and special character" }
     },
     {
       type: "length",
+      severity: "warning",
       min: 8,
-      minMessage: "Password must be at least 8 characters"
+      minMessage: { en: "Password must be at least 8 characters" }
     }
   ],
   min: 8,
   allowedChars: /^[A-Za-z0-9@$!%*?&]$/,
-  messageOnInvalid: "Only letters, numbers, and @$!%*?& characters are allowed"
+  messageOnInvalid: { en: "Only letters, numbers, and @$!%*?& characters are allowed" }
 };
 
 // 8. ConfirmPasswordField → must match Password, required
@@ -158,16 +167,12 @@ export const ConfirmPasswordField = {
   label: "Confirm Password",
   type: "password",
   validation: [
-    { type: "required", message: "Confirm Password is required" },
-    { type: "crossField", field: "password", message: "Passwords must match" }
+    { type: "required", severity: "error", message: { en: "Confirm Password is required" } },
+    { type: "crossField", severity: "error", field: "password", message: { en: "Passwords must match" } }
   ],
   allowedChars: /^[A-Za-z0-9@$!%*?&]$/,
-  messageOnInvalid: "Only letters, numbers, and @$!%*?& characters are allowed"
+  messageOnInvalid: { en: "Only letters, numbers, and @$!%*?& characters are allowed" }
 };
-
-// ===============================
-// Extra Common Defaults
-// ===============================
 
 // 9. DobField → must be valid date, cannot be today's or future date
 export const DobField = {
@@ -175,14 +180,9 @@ export const DobField = {
   label: "Date of Birth",
   type: "date",
   validation: [
-    { type: "required", message: "Date of Birth is required" },
-    { 
-      type: "date", 
-      mustBePast: true,   // 👈 explicitly enforce past-only dates
-      message: "Date of Birth must be before today" 
-    }
+    { type: "required", severity: "error", message: { en: "Date of Birth is required" } },
+    { type: "date", severity: "error", mustBePast: true, message: { en: "Date of Birth must be before today" } }
   ],
-  // Prevent selecting today/future in date picker
   max: new Date(Date.now() - 86400000).toISOString().split("T")[0]
 };
 
@@ -192,24 +192,26 @@ export const UsernameField = {
   label: "Username",
   type: "text",
   validation: [
-    { type: "required", message: "Username is required" },
+    { type: "required", severity: "error", message: { en: "Username is required" } },
     {
       type: "regex",
+      severity: "error",
       pattern: "^[A-Za-z0-9_]{5,20}$",
-      message: "Username must be 5–20 characters, letters/numbers/underscores only"
+      message: { en: "Username must be 5–20 characters, letters/numbers/underscores only" }
     },
     {
       type: "length",
+      severity: "warning",
       min: 5,
       max: 20,
-      minMessage: "Username must be at least 5 characters",
-      maxMessage: "Username must be at most 20 characters"
+      minMessage: { en: "Username must be at least 5 characters" },
+      maxMessage: { en: "Username must be at most 20 characters" }
     }
   ],
   min: 5,
   max: 20,
   allowedChars: /^[A-Za-z0-9_]$/,
-  messageOnInvalid: "Only letters, numbers, and underscores are allowed"
+  messageOnInvalid: { en: "Only letters, numbers, and underscores are allowed" }
 };
 
 // 11. OTPField → 6-digit numeric code
@@ -218,21 +220,23 @@ export const OTPField = {
   label: "OTP",
   type: "text",
   validation: [
-    { type: "required", message: "OTP is required" },
+    { type: "required", severity: "error", message: { en: "OTP is required" } },
     {
       type: "regex",
+      severity: "error",
       pattern: "^\\d{6}$",
-      message: "OTP must be exactly 6 digits"
+      message: { en: "OTP must be exactly 6 digits" }
     },
     {
       type: "length",
+      severity: "error",
       eq: 6,
-      eqMessage: "OTP must be exactly 6 digits"
+      eqMessage: { en: "OTP must be exactly 6 digits" }
     }
   ],
   max: 6,
   allowedChars: /^[0-9]$/,
-  messageOnInvalid: "Only digits are allowed in OTP"
+  messageOnInvalid: { en: "Only digits are allowed in OTP" }
 };
 
 // 12. AlternateEmailField → optional email
@@ -243,12 +247,13 @@ export const AlternateEmailField = {
   validation: [
     {
       type: "regex",
+      severity: "warning",
       pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
-      message: "Invalid email address format"
+      message: { en: "Invalid email address format" }
     }
   ],
   allowedChars: /^[A-Za-z0-9._%+-@]$/,
-  messageOnInvalid: "Only letters, numbers, and email special characters are allowed"
+  messageOnInvalid: { en: "Only letters, numbers, and email special characters are allowed" }
 };
 
 // 13. AlternatePhoneField → optional phone
@@ -259,21 +264,29 @@ export const AlternatePhoneField = {
   validation: [
     {
       type: "regex",
+      severity: "warning",
       pattern: "^\\d{10}$",
-      message: "Phone number must be exactly 10 digits"
+      message: { en: "Phone number must be exactly 10 digits" }
     }
   ],
   max: 10,
   allowedChars: /^[0-9]$/,
-  messageOnInvalid: "Only digits are allowed in Phone Number"
+  messageOnInvalid: { en: "Only digits are allowed in Phone Number" }
 };
 
+// 14. AgeField → must be between 18 and 65
 export const AgeField = {
   name: "age",
   label: "Age",
   type: "number",
   validation: [
-    { type: "required", message: "Age is required" },
-    { type: "numberRange", min: 18, max: 65, message: "Age must be between {min} and {max}" }
+    { type: "required", severity: "error", message: { en: "Age is required" } },
+    {
+      type: "numberRange",
+      severity: "warning",
+      min: 18,
+      max: 65,
+      message: { en: "Age must be between 18 and 65" }
+    }
   ]
 };

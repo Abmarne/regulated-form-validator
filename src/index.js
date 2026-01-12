@@ -7,6 +7,7 @@ import { addCustom, removeCustom, getCustom, listCustom } from "./fields/customR
 export * from "./fields/presets.js";
 export * from "./fields/bfsi.js";
 export * from "./fields/healthcare.js";
+export * from "./fields/government.js";
 
 export {
   parseConfig,

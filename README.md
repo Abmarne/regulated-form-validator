@@ -195,22 +195,6 @@ const NumericCodeField = {
 addCustom("startsWithA", (value) => String(value ?? "").startsWith("A"));
 ```
 
-### 🧪 Local Testing / Development
-Since the package is not yet published, you can test it locally using the included demo app:
-```bash
-# Navigate to the project root
-cd regulated-form-validator
-
-# Modify demo files
-example/App.jsx
-example/config.yaml
-
-# Start the Vite dev server
-npm run dev
-```
-
-Open http://localhost:5173 in your browser to interact with the form.
-
 ### 🧪 Testing
 Run unit tests locally to validate your form logic:
 ```bash

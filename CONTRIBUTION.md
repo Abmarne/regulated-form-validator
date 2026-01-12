@@ -41,6 +41,7 @@ npm test
 ```
 npm run dev
 ```
+Open http://localhost:5173 in your browser to interact with the form.
 
 ### 🧪 Testing Guidelines
 - All new fields must include positive and negative test cases.

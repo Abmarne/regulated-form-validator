@@ -77,26 +77,52 @@ export async function applyRule(rule, value, values, field, locale = "en") {
 /**
  * Validate a single field
  */
-export async function validateField(field, value, values = {}, locale = "en") {
+/** 
+ * Validate a single field with support for multiple errors and severity levels
+ */
+export async function validateField(field, value, values = {}, locale = "en", options = {}) {
+  const { stopOnFirstError = false } = options;
+  const errors = [];
+
   for (const rule of field.validation || []) {
     const res = await applyRule(rule, value, values, field, locale);
-    if (!res.valid) return res; // short-circuit on first failure
+
+    if (!res.valid) {
+      // Default severity is "error" if not provided
+      const severity = res.severity || rule.severity || "error";
+      errors.push({
+        severity,
+        message: res.message,
+        ruleType: rule.type,
+        field: field.name,
+      });
+
+      if (stopOnFirstError) break;
+    }
   }
-  return { valid: true };
+
+  return errors.length === 0
+    ? { valid: true, errors: [] }
+    : { valid: false, errors };
 }
 
-/**
- * Validate all fields in parallel
+/** 
+ * Validate all fields in parallel, aggregating errors with severity levels
  */
-export async function validateAll(fields = [], values = {}, locale = "en") {
+export async function validateAll(fields = [], values = {}, locale = "en", options = {}) {
   const results = await Promise.all(
-    fields.map((f) => validateField(f, values[f.name], values, locale))
+    fields.map((f) => validateField(f, values[f.name], values, locale, options))
   );
 
   const errors = {};
   fields.forEach((f, i) => {
-    if (!results[i].valid) errors[f.name] = results[i].message;
+    if (!results[i].valid) {
+      errors[f.name] = results[i].errors; // array of errors with severity + message
+    }
   });
 
-  return { valid: Object.keys(errors).length === 0, errors };
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors, // structured errors per field
+  };
 }

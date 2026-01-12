@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { validateAll, validateField } from "./validator.js";
 import "./FormRenderer.css";
 
-export default function FormRenderer({ config, onSubmit }) {
+export default function FormRenderer({ config, onSubmit, locale = "en" }) {
   const [values, setValues] = useState({});
   const [errors, setErrors] = useState({});
 
@@ -31,28 +31,24 @@ export default function FormRenderer({ config, onSubmit }) {
     setValues(newValues);
 
     // Run validation
-    const res = await validateField(field, val, newValues);
+    const res = await validateField(field, val, newValues, locale);
 
     // Functional update to avoid race conditions
     setErrors((prev) => ({
       ...prev,
       [field.name]: invalidCharUsed
-        ? {
-            severity: "error",
-            message: field.messageOnInvalid || "Invalid character entered",
-          }
+        ? (typeof field.messageOnInvalid === "object"
+            ? field.messageOnInvalid[locale] || field.messageOnInvalid.en
+            : field.messageOnInvalid)
         : res.valid
         ? null
-        : {
-            severity: res.severity || "error",
-            message: res.message,
-          },
+        : res.errors, // array of error objects
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await validateAll(config.fields, values);
+    const result = await validateAll(config.fields, values, locale);
     setErrors(result.errors);
     if (result.valid) {
       onSubmit(values);
@@ -74,12 +70,25 @@ export default function FormRenderer({ config, onSubmit }) {
             aria-invalid={!!errors[field.name]}
             aria-describedby={`${field.name}-error`}
           />
-          {errors[field.name] && (
+          {errors[field.name] &&
+            Array.isArray(errors[field.name]) &&
+            errors[field.name].map((err, idx) => (
+              <div
+                key={idx}
+                id={`${field.name}-error-${idx}`}
+                className={`validation-message ${err.severity}`}
+              >
+                {typeof err.message === "object"
+                  ? err.message[locale] || err.message.en
+                  : err.message}
+              </div>
+            ))}
+          {errors[field.name] && typeof errors[field.name] === "string" && (
             <div
               id={`${field.name}-error`}
-              className={`validation-message ${errors[field.name].severity}`}
+              className="validation-message error"
             >
-              {errors[field.name].message}
+              {errors[field.name]}
             </div>
           )}
         </div>

@@ -1,4 +1,3 @@
-
 import { getRule } from "./ruleRegistry.js";
 import { getCustom } from "./customRegistry.js";
 
@@ -51,17 +50,29 @@ export async function applyRule(rule, value, values, field, locale = "en") {
     if (typeof fn !== "function") {
       return {
         valid: false,
-        message: localizeMessage(rule, "message", locale) || `Unknown custom rule: ${rule.custom}`,
+        severity: rule.severity || "error",
+        message:
+          localizeMessage(rule, "message", locale) ||
+          `Unknown custom rule: ${rule.custom}`,
       };
     }
     try {
-      // Pass raw value to custom rules to preserve case/numeric integrity
       const ok = await Promise.resolve(fn(value, values, rule));
       return ok
         ? { valid: true }
-        : { valid: false, message: localizeMessage(rule, "message", locale) || "Invalid value" };
+        : {
+            valid: false,
+            severity: rule.severity || "error",
+            message:
+              localizeMessage(rule, "message", locale) || "Invalid value",
+          };
     } catch {
-      return { valid: false, message: localizeMessage(rule, "message", locale) || "Custom rule failed" };
+      return {
+        valid: false,
+        severity: rule.severity || "error",
+        message:
+          localizeMessage(rule, "message", locale) || "Custom rule failed",
+      };
     }
   }
 
@@ -70,29 +81,41 @@ export async function applyRule(rule, value, values, field, locale = "en") {
 
   // Delegate to the registered handler
   const res = await handler(rule, val, values, field);
-  if (!res.valid) res.message = localizeMessage(rule, "message", locale) || res.message;
-  return res;
+
+  if (!res.valid) {
+    return {
+      valid: false,
+      severity: rule.severity || "error",
+      message: localizeMessage(rule, "message", locale) || String(res.message),
+    };
+  }
+
+  return { valid: true };
 }
 
 /**
- * Validate a single field
- */
-/** 
  * Validate a single field with support for multiple errors and severity levels
  */
-export async function validateField(field, value, values = {}, locale = "en", options = {}) {
+export async function validateField(
+  field,
+  value,
+  values = {},
+  locale = "en",
+  options = {}
+) {
   const { stopOnFirstError = false } = options;
-  const errors = [];
+  const allErrors = [];
 
   for (const rule of field.validation || []) {
     const res = await applyRule(rule, value, values, field, locale);
 
     if (!res.valid) {
-      // Default severity is "error" if not provided
       const severity = res.severity || rule.severity || "error";
-      errors.push({
+      const message = String(res.message);
+
+      allErrors.push({
         severity,
-        message: res.message,
+        message,
         ruleType: rule.type,
         field: field.name,
       });
@@ -101,17 +124,35 @@ export async function validateField(field, value, values = {}, locale = "en", op
     }
   }
 
-  return errors.length === 0
+  // Collapse by severity: keep only the first message per severity
+  const uniqueBySeverity = [];
+  const seenSeverities = new Set();
+
+  for (const err of allErrors) {
+    if (!seenSeverities.has(err.severity)) {
+      uniqueBySeverity.push(err);
+      seenSeverities.add(err.severity);
+    }
+  }
+
+  return uniqueBySeverity.length === 0
     ? { valid: true, errors: [] }
-    : { valid: false, errors };
+    : { valid: false, errors: uniqueBySeverity };
 }
 
-/** 
+/**
  * Validate all fields in parallel, aggregating errors with severity levels
  */
-export async function validateAll(fields = [], values = {}, locale = "en", options = {}) {
+export async function validateAll(
+  fields = [],
+  values = {},
+  locale = "en",
+  options = {}
+) {
   const results = await Promise.all(
-    fields.map((f) => validateField(f, values[f.name], values, locale, options))
+    fields.map((f) =>
+      validateField(f, values[f.name], values, locale, options)
+    )
   );
 
   const errors = {};

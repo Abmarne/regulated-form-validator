@@ -8,7 +8,7 @@ export const NameField = {
   label: "Full Name",
   type: "text",
   validation: [
-    { type: "required", severity: "error", message: { en: "Name is required" } },
+    { type: "required", severity: "error", message:  { en:"Name is required" } },
     {
       type: "regex",
       severity: "error",
@@ -149,12 +149,7 @@ export const PasswordField = {
       pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
       message: { en: "Password must be at least 8 characters, include uppercase, lowercase, number, and special character" }
     },
-    {
-      type: "length",
-      severity: "warning",
-      min: 8,
-      minMessage: { en: "Password must be at least 8 characters" }
-    }
+
   ],
   min: 8,
   allowedChars: /^[A-Za-z0-9@$!%*?&]$/,

@@ -1,22 +1,26 @@
-### 📦 Regulated Form Validator (React)
-**Regulated Form Validator** is a **React library for compliance‑ready form validation and rendering**, powered by **YAML/JSON declarative configs**.
-It helps developers build dynamic, auditor‑friendly forms for **BFSI, healthcare, and other regulated domains** without reinventing validation logic.
-- 🛡️ **Compliance‑focused:** Ships with BFSI & healthcare presets (PAN, Aadhaar, IFSC, Insurance IDs, etc.)
-- ⚡ **Developer‑friendly:** Declarative configs, runtime custom rule registry, and reusable preset fields
-- 👀 **Audit‑ready:** Human‑readable configs that make validation logic transparent for compliance reviews
-- 🔄 **Runtime flexibility:** Add, remove, or list custom rules dynamically without redeploying
-- 🧩 **Error‑safe architecture:** Regex, date, and conditional rules handle invalid inputs gracefully
-This project bridges the gap between **developer productivity** and **regulatory compliance**, making it easy to build forms that are both **user‑friendly** and **audit‑ready**.
+### 📦 Regulated Form Validator (React)  
+**Regulated Form Validator** is a **React library for compliance‑ready form validation and rendering**, powered by **YAML/JSON declarative configs**.  
+It helps developers build dynamic, auditor‑friendly forms for **BFSI, healthcare, and other regulated domains** without reinventing validation logic.  
+
+- 🛡️ **Compliance‑focused:** Ships with BFSI & healthcare presets (PAN, Aadhaar, IFSC, Insurance IDs, etc.)  
+- ⚡ **Developer‑friendly:** Declarative configs, runtime custom rule registry, reusable preset fields, async API validation  
+- 🌍 **i18n‑ready:** Localized error messages (`en`, `fr`, etc.) for multilingual compliance workflows  
+- 👀 **Audit‑ready:** Human‑readable configs that make validation logic transparent for compliance reviews  
+- 🔄 **Runtime flexibility:** Add, remove, or list custom rules dynamically without redeploying  
+- 🧩 **Error‑safe architecture:** Regex, date, async, and conditional rules handle invalid inputs gracefully  
+
+This project bridges the gap between **developer productivity** and **regulatory compliance**, making it easy to build forms that are both **user‑friendly**, **multilingual**, and **audit‑ready**.  
 
 
 ### ✨ Features
-• 	**Declarative config:** Define fields and rules in YAML/JSON.  
-• 	**Dynamic rendering:** Auto-generate React forms from config.  
-• 	**Rich validations:** `required`,`regex`,`length`,`enum`,`number`,`date`,`crossField`,`conditional(when)`,`custom`.  
-• 	**BFSI rules built-in:** PAN, IFSC, Aadhaar.  
-• 	**Auditor-friendly:** Human-readable config files for compliance reviews.   
-•   **Error‑safe:** Regex and date rules handle invalid inputs gracefully.
-•   **Custom registry API:** Add, remove, and list custom rules at runtime.
+•  **Declarative config:** Define fields and rules in YAML/JSON.  
+•  **Dynamic rendering:** Auto-generate React forms from config.  
+•  **Rich validations:** `required`, `regex`, `length`, `enum`, `number`, `date`, `crossField`, `conditional(when)`, `async`, `custom`, `i18n`.  
+•  **BFSI rules built-in:** PAN, IFSC, Aadhaar.  
+•  **Auditor-friendly:** Human-readable config files for compliance reviews.  
+•  **Error‑safe:** Regex, date, async, and conditional rules handle invalid inputs gracefully.  
+•  **Custom registry API:** Add, remove, and list custom rules at runtime.  
+•  **i18n support:** Localized error messages (`en`, `fr`, etc.) for multilingual compliance workflows.  
 
 
 ### 📥 Installation
@@ -83,19 +87,22 @@ Each preset includes:
 ### 🏦 BFSI Preset Fields
 
 The library ships with strict BFSI presets for compliance‑heavy domains:
-
-- **PANField** – required, 10 characters, format `ABCDE1234F`  
-- **IFSCField** – required, 11 characters, format `SBIN0001234`  
-- **AadhaarField** – required, exactly 12 digits  
+  
+- **IFSCField** – required, 11 characters, format `SBIN0001234`   
 - **GSTField** – required, exactly 15 characters, strict GSTIN format  
 - **AccountNumberField** – required, 9–18 digits  
 - **MICRField** – required, exactly 9 digits  
+- **SWIFTField** – required, 8 or 11 alphanumeric characters  
+- **CreditCardField** – required, exactly 16 digits  
+- **CVVField** – required, exactly 3 digits (password type)  
+- **ExpiryDateField** – required, valid future date in `MM/YY` format  
 
-Each preset includes:
+Each preset includes:  
 - Uppercase enforcement where applicable  
 - `allowedChars` for per‑character filtering  
 - `messageOnInvalid` for immediate feedback  
-- Auditor‑friendly error messages
+- Auditor‑friendly error messages  
+- Enhanced validations for BFSI compliance (length, regex, conditional checks)  
 
 ### 🏥 Healthcare Preset Fields
 
@@ -106,12 +113,40 @@ The library ships with strict healthcare presets for patient and medical record 
 - **HealthIDField** – required, 10–16 characters, uppercase letters + digits  
 - **BloodGroupField** – required select, options: `A+`, `A-`, `B+`, `B-`, `O+`, `O-`, `AB+`, `AB-`  
 - **MedicalRecordField** – required, 6–12 digits  
+- **DoctorIDField** – required, exactly 6 characters, uppercase letters + digits  
+- **HospitalCodeField** – required, 3 uppercase letters + 3 digits (e.g., HSP123)  
+- **PrescriptionIDField** – required, exactly 10 digits  
+- **NationalHealthNumberField (NHN)** – required, exactly 12 digits  
 
-Each preset includes:
+Each preset includes:  
 - Uppercase enforcement where applicable  
 - `allowedChars` for per‑character filtering  
 - `messageOnInvalid` for immediate feedback  
-- Auditor‑friendly error messages
+- Auditor‑friendly error messages  
+- Enhanced validations for healthcare compliance (length, regex, select options, conditional checks)  
+
+### 🏛 Government ID Preset Fields
+
+The library also ships with strict **Government ID presets** for compliance‑heavy domains:
+
+- **PANField** – required, 10 characters, format `ABCDE1234F`  
+- **AadhaarField** – required, exactly 12 digits  
+- **VoterIDField** – required, exactly 10 alphanumeric characters  
+- **DrivingLicenseField** – required, exactly 16 alphanumeric characters  
+- **PassportField** – required, 8 characters, format `A1234567` (1 uppercase letter + 7 digits)  
+
+Each preset includes:  
+- Uppercase enforcement where applicable  
+- `allowedChars` for per‑character filtering  
+- `messageOnInvalid` for immediate feedback  
+- Auditor‑friendly error messages  
+- Enhanced validations for government compliance (length, regex, uppercase enforcement)  
+
+> 💡 **Usage Note:**  
+> For practical examples of how to import and use these preset fields in a React app,  
+> please refer to [`example/Demo.jsx`](example/Demo.jsx).  
+> This demo shows how to configure forms, override preset validations, and integrate  
+> advanced rules (crossField, conditional `when`, async, i18n).
 
 ### 📖 Yaml Usage
 1. **Define a YAML Config for Customization**

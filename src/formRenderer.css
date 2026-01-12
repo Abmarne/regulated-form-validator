@@ -58,10 +58,31 @@ button[type="submit"]:active {
   background: #004578;
 }
 
-div[style] > div {
+/* Severity-based validation messages */
+.validation-message {
   margin-top: 0.5rem;
   font-size: 0.9rem;
-  color: #d83b01; /* red for errors */
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+}
+
+.validation-message.error {
+  color: #d83b01; /* red */
+  background: #fde7e9;
+  border: 1px solid #d83b01;
+}
+
+.validation-message.warning {
+  color: #946200; /* amber/brown */
+  background: #fff4ce;
+  border: 1px solid #946200;
+}
+
+.validation-message.info {
+  color: #005a9e; /* blue */
+  background: #deecf9;
+  border: 1px solid #005a9e;
 }
 
 /* Responsive tweaks */
@@ -71,8 +92,14 @@ div[style] > div {
     gap: 1rem;
   }
 
-  input, button[type="submit"] {
+  input,
+  button[type="submit"] {
     font-size: 0.9rem;
     padding: 0.6rem;
+  }
+
+  .validation-message {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.5rem;
   }
 }

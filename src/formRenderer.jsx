@@ -17,7 +17,10 @@ export default function FormRenderer({ config, onSubmit }) {
 
     // Strict filtering using allowedChars
     if (field.allowedChars) {
-      const filtered = rawVal.split("").filter(ch => field.allowedChars.test(ch)).join("");
+      const filtered = rawVal
+        .split("")
+        .filter((ch) => field.allowedChars.test(ch))
+        .join("");
       if (filtered !== rawVal) {
         invalidCharUsed = true;
         val = filtered;
@@ -31,11 +34,19 @@ export default function FormRenderer({ config, onSubmit }) {
     const res = await validateField(field, val, newValues);
 
     // Functional update to avoid race conditions
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
       [field.name]: invalidCharUsed
-        ? field.messageOnInvalid || "Invalid character entered"
-        : res.valid ? null : res.message,
+        ? {
+            severity: "error",
+            message: field.messageOnInvalid || "Invalid character entered",
+          }
+        : res.valid
+        ? null
+        : {
+            severity: res.severity || "error",
+            message: res.message,
+          },
     }));
   };
 
@@ -50,7 +61,7 @@ export default function FormRenderer({ config, onSubmit }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      {config.fields.map(field => (
+      {config.fields.map((field) => (
         <div key={field.name} style={{ marginBottom: "1rem" }}>
           <label htmlFor={field.name}>{field.label}</label>
           <input
@@ -64,8 +75,11 @@ export default function FormRenderer({ config, onSubmit }) {
             aria-describedby={`${field.name}-error`}
           />
           {errors[field.name] && (
-            <div id={`${field.name}-error`} style={{ color: "red" }}>
-              {errors[field.name]}
+            <div
+              id={`${field.name}-error`}
+              className={`validation-message ${errors[field.name].severity}`}
+            >
+              {errors[field.name].message}
             </div>
           )}
         </div>

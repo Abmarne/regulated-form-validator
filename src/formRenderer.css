@@ -13,7 +13,7 @@ form {
   font-family: "Segoe UI", Roboto, sans-serif;
 }
 
-form div {
+.form-group {
   display: flex;
   flex-direction: column;
 }
@@ -24,18 +24,43 @@ label {
   color: #333;
 }
 
-input {
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  width: 100%;
   padding: 0.75rem 1rem;
+  padding-right: 4rem; /* reserve space for toggle text */
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-input:focus {
+.input-wrapper input:focus {
   border-color: #0078d4; /* Microsoft blue */
   box-shadow: 0 0 0 3px rgba(0,120,212,0.2);
   outline: none;
+}
+
+/* Toggle text inside password fields */
+.toggle-text {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0078d4;
+  user-select: none;
+}
+
+.toggle-text:hover {
+  text-decoration: underline;
 }
 
 button[type="submit"] {
@@ -92,10 +117,16 @@ button[type="submit"]:active {
     gap: 1rem;
   }
 
-  input,
+  .input-wrapper input,
   button[type="submit"] {
     font-size: 0.9rem;
     padding: 0.6rem;
+    padding-right: 3rem; /* adjust for smaller screens */
+  }
+
+  .toggle-text {
+    font-size: 0.75rem;
+    right: 0.75rem;
   }
 
   .validation-message {

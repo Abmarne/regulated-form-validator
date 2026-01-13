@@ -48,13 +48,19 @@ registerRule("required", async (rule, val, values, field, locale = "en") => {
   );
 });
 
-// Regex
+// Regex (strict: empty pattern is invalid)
 registerRule("regex", async (rule, val, values, field, locale = "en") => {
-  try {
-    const re = new RegExp(
-      rule.pattern || rule.extra?.pattern,
-      rule.flags || rule.extra?.flags || ""
+  const pattern = rule.pattern || rule.extra?.pattern;
+  if (!pattern) {
+    return withSeverity(
+      rule,
+      { valid: false, message: "Invalid regex pattern" },
+      "message",
+      locale
     );
+  }
+  try {
+    const re = new RegExp(pattern, rule.flags || rule.extra?.flags || "");
     return withSeverity(
       rule,
       re.test(val)

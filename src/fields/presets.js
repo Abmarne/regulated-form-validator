@@ -239,6 +239,7 @@ export const AlternateEmailField = {
   name: "alternateEmail",
   label: "Alternate Email",
   type: "email",
+  optional: true,   // 👈 new flag
   validation: [
     {
       type: "regex",
@@ -256,6 +257,7 @@ export const AlternatePhoneField = {
   name: "alternatePhone",
   label: "Alternate Phone Number",
   type: "tel",
+  optional: true,   // 👈 new flag
   validation: [
     {
       type: "regex",

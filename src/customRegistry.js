@@ -1,4 +1,3 @@
-// customRegistry.js
 const registry = Object.create(null);
 
 // Built-in custom rules
@@ -42,10 +41,15 @@ registry.usernameAvailable = async (value, _values, rule) => {
 
 // Public API
 export function addCustom(name, fn) {
-  if (typeof name !== "string" || !name)
+  if (typeof name !== "string" || !name) {
     throw new Error("Custom rule name must be a non-empty string");
-  if (typeof fn !== "function")
+  }
+  if (typeof fn !== "function") {
     throw new Error("Custom rule must be a function");
+  }
+  if (registry[name]) {
+    throw new Error(`Custom rule '${name}' already exists`);
+  }
   registry[name] = fn;
 }
 

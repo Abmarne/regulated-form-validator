@@ -14,8 +14,12 @@ describe("Conditional rules (when)", () => {
         { type: "required", when: { field: "trigger", equals: "YES" }, message: "Required when trigger=YES" }
       ]
     };
-    expect(await validateField(field, "", { trigger: "NO" })).toEqual({ valid: true });
-    expect((await validateField(field, "", { trigger: "YES" })).valid).toBe(false);
+    const resNo = await validateField(field, "", { trigger: "NO" });
+    expect(resNo.valid).toBe(true);
+
+    const resYes = await validateField(field, "", { trigger: "YES" });
+    expect(resYes.valid).toBe(false);
+    expect(resYes.errors[0].message).toBe("Required when trigger=YES");
   });
 
   test("NotEquals condition", async () => {
@@ -27,8 +31,12 @@ describe("Conditional rules (when)", () => {
         { type: "required", when: { field: "trigger", notEquals: "BLOCK" }, message: "Required unless BLOCK" }
       ]
     };
-    expect(await validateField(field, "", { trigger: "BLOCK" })).toEqual({ valid: true });
-    expect((await validateField(field, "", { trigger: "ALLOW" })).valid).toBe(false);
+    const resBlock = await validateField(field, "", { trigger: "BLOCK" });
+    expect(resBlock.valid).toBe(true);
+
+    const resAllow = await validateField(field, "", { trigger: "ALLOW" });
+    expect(resAllow.valid).toBe(false);
+    expect(resAllow.errors[0].message).toBe("Required unless BLOCK");
   });
 
   test("in/notIn conditions", async () => {
@@ -40,8 +48,11 @@ describe("Conditional rules (when)", () => {
         { type: "required", when: { field: "trigger", in: ["A", "B"] }, message: "Required if trigger in A/B" }
       ]
     };
-    expect(await validateField(field, "", { trigger: "C" })).toEqual({ valid: true });
-    expect((await validateField(field, "", { trigger: "A" })).valid).toBe(false);
+    expect((await validateField(field, "", { trigger: "C" })).valid).toBe(true);
+
+    const resIn = await validateField(field, "", { trigger: "A" });
+    expect(resIn.valid).toBe(false);
+    expect(resIn.errors[0].message).toBe("Required if trigger in A/B");
 
     const field2 = {
       name: "conditional2",
@@ -51,8 +62,11 @@ describe("Conditional rules (when)", () => {
         { type: "required", when: { field: "trigger", notIn: ["X", "Y"] }, message: "Required if not in X/Y" }
       ]
     };
-    expect(await validateField(field2, "", { trigger: "X" })).toEqual({ valid: true });
-    expect((await validateField(field2, "", { trigger: "Z" })).valid).toBe(false);
+    expect((await validateField(field2, "", { trigger: "X" })).valid).toBe(true);
+
+    const resNotIn = await validateField(field2, "", { trigger: "Z" });
+    expect(resNotIn.valid).toBe(false);
+    expect(resNotIn.errors[0].message).toBe("Required if not in X/Y");
   });
 });
 
@@ -68,7 +82,9 @@ describe("Date constraints", () => {
       validation: [{ type: "date", before: "2025-01-01", message: "Must be before 2025" }]
     };
     expect((await validateField(field, "2026-01-01")).valid).toBe(false);
-    expect(await validateField(field, "2024-12-31")).toEqual({ valid: true });
+
+    const resValid = await validateField(field, "2024-12-31");
+    expect(resValid.valid).toBe(true);
   });
 
   test("Date must be after specific date", async () => {
@@ -79,7 +95,9 @@ describe("Date constraints", () => {
       validation: [{ type: "date", after: "2000-01-01", message: "Must be after 2000" }]
     };
     expect((await validateField(field, "1999-12-31")).valid).toBe(false);
-    expect(await validateField(field, "2001-01-01")).toEqual({ valid: true });
+
+    const resValid = await validateField(field, "2001-01-01");
+    expect(resValid.valid).toBe(true);
   });
 });
 
@@ -96,7 +114,9 @@ describe("Number range validation", () => {
     };
     expect((await validateField(field, "17")).valid).toBe(false);
     expect((await validateField(field, "66")).valid).toBe(false);
-    expect(await validateField(field, "30")).toEqual({ valid: true });
+
+    const resValid = await validateField(field, "30");
+    expect(resValid.valid).toBe(true);
   });
 });
 
@@ -104,35 +124,34 @@ describe("Number range validation", () => {
 // Custom Rules
 // ------------------------------
 describe("Custom rules", () => {
- test("Custom rule isEven passes/fails correctly", async () => {
-  const field = {
-    name: "evenNumber",
-    label: "Even Number",
-    type: "text",
-    validation: [{ type: "custom", custom: "isEven", message: "Must be even" }]
-  };
-  const resPass = await validateField(field, "4");
-  expect(resPass.valid).toBe(true);
+  test("Custom rule isEven passes/fails correctly", async () => {
+    const field = {
+      name: "evenNumber",
+      label: "Even Number",
+      type: "text",
+      validation: [{ type: "custom", custom: "isEven", message: "Must be even" }]
+    };
+    const resPass = await validateField(field, "4");
+    expect(resPass.valid).toBe(true);
 
-  const resFail = await validateField(field, "5");
-  expect(resFail.valid).toBe(false);
-  expect(resFail.message).toBe("Must be even");
-});
+    const resFail = await validateField(field, "5");
+    expect(resFail.valid).toBe(false);
+    expect(resFail.errors[0].message).toBe("Must be even");
+  });
 
-test("Built-in mustContainXYZ works", async () => {
-  const field = {
-    name: "xyzField",
-    label: "XYZ Field",
-    type: "text",
-    validation: [{ type: "custom", custom: "mustContainXYZ", message: "Must contain XYZ" }]
-  };
-  const resPass = await validateField(field, "abcXYZdef");
-  expect(resPass.valid).toBe(true);
+  test("Built-in mustContainXYZ works", async () => {
+    const field = {
+      name: "xyzField",
+      label: "XYZ Field",
+      type: "text",
+      validation: [{ type: "custom", custom: "mustContainXYZ", message: "Must contain XYZ" }]
+    };
+    expect((await validateField(field, "abcXYZdef")).valid).toBe(true);
 
-  const resFail = await validateField(field, "abcdef");
-  expect(resFail.valid).toBe(false);
-  expect(resFail.message).toBe("Must contain XYZ");
-});
+    const resFail = await validateField(field, "abcdef");
+    expect(resFail.valid).toBe(false);
+    expect(resFail.errors[0].message).toBe("Must contain XYZ");
+  });
 
   test("Unknown custom rule fails gracefully", async () => {
     const field = {
@@ -143,10 +162,10 @@ test("Built-in mustContainXYZ works", async () => {
     };
     const res = await validateField(field, "anything");
     expect(res.valid).toBe(false);
-    expect(res.message).toBe("Unknown rule");
+    expect(res.errors[0].message).toBe("Unknown rule");
   });
 
-test("Built-in afterDate works", async () => {
+  test("Built-in afterDate works", async () => {
     const field = {
       name: "afterDateField",
       type: "text",
@@ -155,16 +174,12 @@ test("Built-in afterDate works", async () => {
           type: "custom",
           custom: "afterDate",
           message: "Must be after 2025-01-01",
-          extra: { after: "2025-01-01" },
-        },
-      ],
+          extra: { after: "2025-01-01" }
+        }
+      ]
     };
-
-    const resFail = await validateField(field, "2024-12-31");
-    expect(resFail.valid).toBe(false);
-
-    const resPass = await validateField(field, "2026-01-01");
-    expect(resPass.valid).toBe(true);
+    expect((await validateField(field, "2024-12-31")).valid).toBe(false);
+    expect((await validateField(field, "2026-01-01")).valid).toBe(true);
   });
 
   test("Built-in matchesRegex works", async () => {
@@ -172,21 +187,14 @@ test("Built-in afterDate works", async () => {
       name: "regexField",
       type: "text",
       validation: [
-        {
-          type: "custom",
-          custom: "matchesRegex",
-          message: "Must match pattern",
-          extra: { pattern: "^[A-Z]{3}$" },
-        },
-      ],
+        { type: "custom", custom: "matchesRegex", message: "Must match pattern", extra: { pattern: "^[A-Z]{3}$" } }
+      ]
     };
-
-    const resPass = await validateField(field, "ABC");
-    expect(resPass.valid).toBe(true);
+    expect((await validateField(field, "ABC")).valid).toBe(true);
 
     const resFail = await validateField(field, "abc");
     expect(resFail.valid).toBe(false);
-    expect(resFail.message).toBe("Must match pattern");
+    expect(resFail.errors[0].message).toBe("Must match pattern");
   });
 
   test("Runtime add/remove custom rule works", async () => {
@@ -195,74 +203,72 @@ test("Built-in afterDate works", async () => {
     const field = {
       name: "startsWithAField",
       type: "text",
-      validation: [
-        { type: "custom", custom: "startsWithA", message: "Must start with A" },
-      ],
+      validation: [{ type: "custom", custom: "startsWithA", message: "Must start with A" }]
     };
 
-    const resPass = await validateField(field, "Alice");
-    expect(resPass.valid).toBe(true);
+    expect((await validateField(field, "Alice")).valid).toBe(true);
 
     const resFail = await validateField(field, "Bob");
     expect(resFail.valid).toBe(false);
-    expect(resFail.message).toBe("Must start with A");
+    expect(resFail.errors[0].message).toBe("Must start with A");
 
-    // Registry should contain the rule
     expect(listCustom()).toContain("startsWithA");
 
-    // Remove and confirm it's gone
     removeCustom("startsWithA");
     expect(listCustom()).not.toContain("startsWithA");
   });
 
   test("addCustom throws on invalid name", () => {
-  expect(() => addCustom("", () => true)).toThrow();
-});
+    expect(() => addCustom("", () => true)).toThrow();
+  });
 
-test("addCustom throws on non-function", () => {
-  expect(() => addCustom("badRule", "notAFunction")).toThrow();
-});
+  test("addCustom throws on non-function", () => {
+    expect(() => addCustom("badRule", "notAFunction")).toThrow();
+  });
 
-test("regex rule fails on invalid pattern", async () => {
-  const field = {
-    name: "regexField",
-    type: "text",
-    validation: [{ type: "regex", pattern: "[", message: "Invalid regex" }],
-  };
-  const res = await validateField(field, "anything");
-  expect(res.valid).toBe(false);
-});
+  test("regex rule fails on invalid pattern", async () => {
+    const field = {
+      name: "regexField",
+      type: "text",
+      validation: [{ type: "regex", pattern: "[", message: "Invalid regex" }]
+    };
+    const res = await validateField(field, "anything");
+    expect(res.valid).toBe(false);
+    expect(res.errors[0].message).toBe("Invalid regex");
+  });
 
-test("numberRange fails on NaN input", async () => {
-  const field = {
-    name: "numField",
-    type: "text",
-    validation: [{ type: "numberRange", min: 1, max: 10, message: "Must be number" }],
-  };
-  const res = await validateField(field, "notANumber");
-  expect(res.valid).toBe(false);
-});
+  test("numberRange fails on NaN input", async () => {
+    const field = {
+      name: "numField",
+      type: "text",
+      validation: [{ type: "numberRange", min: 1, max: 10, message: "Must be number" }]
+    };
+    const res = await validateField(field, "notANumber");
+    expect(res.valid).toBe(false);
+    expect(res.errors[0].message).toBe("Must be number");
+  });
 
-test("date rule catches invalid date", async () => {
-  const field = {
-    name: "dateField",
-    type: "date",
-    validation: [{ type: "date", message: "Invalid date" }],
-  };
-  const res = await validateField(field, "notADate");
-  expect(res.valid).toBe(false);
-});
+  test("date rule catches invalid date", async () => {
+    const field = {
+      name: "dateField",
+      type: "date",
+      validation: [{ type: "date", message: "Invalid date" }]
+    };
+    const res = await validateField(field, "notADate");
+    expect(res.valid).toBe(false);
+    expect(res.errors[0].message).toBe("Invalid date");
+  });
 
-test("custom rule fails gracefully on exception", async () => {
-  addCustom("throwsError", () => { throw new Error("fail"); });
-  const field = {
-    name: "errorField",
-    type: "text",
-    validation: [{ type: "custom", custom: "throwsError", message: "Custom failed" }],
-  };
-  const res = await validateField(field, "anything");
-  expect(res.valid).toBe(false);
-  expect(res.message).toBe("Custom failed");
-  removeCustom("throwsError");
-});
+  test("custom rule fails gracefully on exception", async () => {
+    addCustom("throwsError", () => { throw new Error("fail"); });
+    const field = {
+      name: "errorField",
+      type: "text",
+      validation: [{ type: "custom", custom: "throwsError", message: "Custom failed" }]
+    };
+    const res = await validateField(field, "anything");
+    expect(res.valid).toBe(false);
+    expect(res.errors[0].message).toBe("Custom failed");
+    removeCustom("throwsError");
+  });
 });

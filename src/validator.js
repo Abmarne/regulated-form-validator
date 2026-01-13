@@ -106,6 +106,11 @@ export async function validateField(
   const { stopOnFirstError = false } = options;
   const allErrors = [];
 
+  // 👇 Optional guard: skip validation if field is optional and empty
+  if (field.optional && (!value || String(value).trim() === "")) {
+    return { valid: true, errors: [] };
+  }
+
   for (const rule of field.validation || []) {
     const res = await applyRule(rule, value, values, field, locale);
 

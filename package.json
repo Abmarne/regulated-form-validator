@@ -1,6 +1,6 @@
 {
   "name": "regulated-form-validator",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Declarative, compliance-ready form validation for React with YAML/JSON configs and runtime custom rules.",
   "type": "module",
   "main": "dist/index.cjs",

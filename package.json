@@ -93,10 +93,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/abhirajmarne/regulated-form-validator.git"
+    "url": "https://github.com/Abmarne/regulated-form-validator.git"
   },
   "bugs": {
-    "url": "https://github.com/abhirajmarne/regulated-form-validator/issues"
+    "url": "https://github.com/Abmarne/regulated-form-validator/issues"
   },
-  "homepage": "https://github.com/abhirajmarne/regulated-form-validator#readme"
+  "homepage": "https://github.com/Abmarne/regulated-form-validator#readme"
 }

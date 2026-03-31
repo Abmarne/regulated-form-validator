@@ -15,13 +15,12 @@ import {
   PANField,
 } from "regulated-form-validator";
 
-// ✅ Example: override preset configs with custom rules
 const CustomUsernameField = {
   ...UsernameField,
   validation: [
     ...UsernameField.validation,
     {
-      type: "async", // built-in async rule
+      type: "async",
       severity: "error",
       url: "https://api.example.com/check-username",
       message: { en: "This username is already taken" },
@@ -29,47 +28,62 @@ const CustomUsernameField = {
   ],
 };
 
-const ReferralCodeField = {
-  name: "referralCode",
-  label: "Referral Code",
-  type: "text",
-  validation: [
-    {
-      type: "regex",
-      severity: "warning",
-      pattern: "^[A-Z0-9]{6}$",
-      message: { en: "Referral code must be 6 alphanumeric characters" },
-      when: { field: "age", min: 18 }, // only validate if age ≥ 18
-    },
-  ],
-};
-
-export default function PresetDemo() {
-  const presetConfig = {
-    fields: [
-      NameField,              // required + regex + length
-      EmailField,             // required + regex
-      PincodeField,           // required + regex + length
-      PANField,               // PAN validation preset
-      PasswordField,          // strong password regex
-      ConfirmPasswordField,   // crossField validation
-      AgeField,               // numberRange
-      GenderField,            // select options
-      DobField,               // date validation
-      CustomUsernameField,    // async rule override
-      OTPField,               // OTP validation
-      ReferralCodeField,      // conditional `when`
+export default function WizardDemo() {
+  const wizardConfig = {
+    title: "KYC Onboarding",
+    submitLabel: "Finish & Open Account",
+    steps: [
+      {
+        title: "Basic Information",
+        description: "Let's start with your identity details.",
+        fields: [
+          { ...NameField, fullWidth: true },
+          AgeField,
+          GenderField,
+          DobField,
+        ],
+      },
+      {
+        title: "Contact & Location",
+        description: "Where can we reach you?",
+        fields: [
+          EmailField,
+          PincodeField,
+        ],
+      },
+      {
+        title: "Legal & Security",
+        description: "Nearly there! Secure your account.",
+        fields: [
+          PANField,
+          { ...CustomUsernameField, fullWidth: true },
+          PasswordField,
+          ConfirmPasswordField,
+        ],
+      },
     ],
   };
 
   return (
-    <FormRenderer
-      config={presetConfig}
-      locale="en" // switch to "fr" for French messages
-      onSubmit={(values) => {
-        const result = validateAll(presetConfig.fields, values, "en");
-        console.log("Validation Result:", result);
-      }}
-    />
+    <div style={{ 
+      padding: "40px 20px", 
+      background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)", 
+      minHeight: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center"
+    }}>
+      <FormRenderer
+        config={wizardConfig}
+        locale="en"
+        theme="modern"
+        onSubmit={(values) => {
+          console.log("Final Wizard Data:", values);
+          alert("KYC Completed Successfully!");
+        }}
+      />
+    </div>
   );
 }
+
+
